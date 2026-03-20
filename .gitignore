@@ -1,0 +1,75 @@
+# -------------------------
+# Node / JS (anywhere)
+# -------------------------
+node_modules/
+**/node_modules/
+
+dist/
+**/dist/
+**/dist-ssr/
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+package-lock.json
+**/package-lock.json
+
+*.local
+
+# -------------------------
+# Environment Files
+# -------------------------
+.env
+.env.*
+!.env.example
+
+# -------------------------
+# Python (anywhere)
+# -------------------------
+venv/
+**/venv/
+.venv/
+**/.venv/
+
+__pycache__/
+**/__pycache__/
+
+*.py[cod]
+*.pyo
+*.pyd
+
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# -------------------------
+# Database / Logs
+# -------------------------
+*.db
+*.sqlite3
+*.log
+
+# -------------------------
+# OS / Editor
+# -------------------------
+.DS_Store
+.idea/
+.vscode/
+
+# -------------------------
+# Build / Coverage
+# -------------------------
+build/
+**/build/
+
+coverage/
+htmlcov/
+
+# -------------------------
+# Misc
+# -------------------------
+*.pid
+*.seed
+*.out

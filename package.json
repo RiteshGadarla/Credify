@@ -1,0 +1,27 @@
+{
+  "name": "credify-root",
+  "version": "1.0.0",
+  "description": "Credify - Fact & Claim Verification System",
+  "scripts": {
+    "install:linux": "npm install && npm install --prefix frontend && (cd backend && python3 -m venv venv && venv/bin/pip install -r requirements.txt)",
+    
+    "install:windows": "npm install && npm install --prefix frontend && cd backend && python -m venv venv && venv\\Scripts\\pip install -r requirements.txt",
+
+    "activate:linux": "bash -c 'cd backend && source venv/bin/activate && exec $SHELL'",
+    
+    "activate:windows": "cmd /k \"cd backend && venv\\Scripts\\activate\"",
+
+    "backend:linux": "bash -c 'cd backend && source venv/bin/activate && uvicorn app.main:app --reload --host 0.0.0.0 --port 8000'",
+    
+    "backend:windows": "cmd /c \"cd backend && venv\\Scripts\\activate && uvicorn app.main:app --reload --host 0.0.0.0 --port 8000\"",
+
+    "frontend": "cd frontend && npm run dev",
+
+    "dev:linux": "concurrently \"npm run backend:linux\" \"npm run frontend\"",
+    
+    "dev:windows": "concurrently \"npm run backend:windows\" \"npm run frontend\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
