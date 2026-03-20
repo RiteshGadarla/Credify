@@ -11,9 +11,11 @@
     
     "activate:windows": "cmd /k \"cd backend && venv\\Scripts\\activate\"",
 
-    "backend:linux": "bash -c 'cd backend && source venv/bin/activate && uvicorn app.main:app --reload --host 0.0.0.0 --port 8000'",
+    "backend:linux": "bash -c 'cd backend && source venv/bin/activate && python run.py --env development'",
     
-    "backend:windows": "cmd /c \"cd backend && venv\\Scripts\\activate && uvicorn app.main:app --reload --host 0.0.0.0 --port 8000\"",
+    "backend:windows": "cmd /c \"cd backend && venv\\Scripts\\activate && python run.py --env development\"",
+
+    "backend:prod": "bash -c 'cd backend && source venv/bin/activate && python run.py --env production --workers 4'",
 
     "frontend": "cd frontend && npm run dev",
 

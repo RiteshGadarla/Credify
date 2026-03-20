@@ -4,10 +4,10 @@ motor
 python-dotenv
 passlib[bcrypt]
 python-jose[cryptography]
-pydantic[email]
+pydantic-settings
+google-generativeai
 python-multipart
 httpx
 google-auth
 requests
-pydantic-settings
 pydantic[email]

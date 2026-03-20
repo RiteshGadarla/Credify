@@ -13,6 +13,8 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 43200))
     GOOGLE_CLIENT_ID: str = os.getenv("GOOGLE_CLIENT_ID", "")
     GOOGLE_CLIENT_SECRET: str = os.getenv("GOOGLE_CLIENT_SECRET", "")
+    GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")
+    FAST_API_PORT: int = int(os.getenv("FAST_API_PORT", 8000))
 
     class Config:
         case_sensitive = True

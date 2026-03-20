@@ -1,11 +1,9 @@
-from typing import Generator
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
-from jose import jwt, JWTError
-from pydantic import ValidationError
-from ..core.config import settings
-from ..db.mongodb import get_database
-from ..models.user import TokenData
+from app.core.config import settings
+from app.utils.mongo import get_database
+from app.utils.auth import verify_access_token
+from app.schemas.user import TokenData
 
 oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl="/auth/login"
@@ -14,16 +12,13 @@ oauth2_scheme = OAuth2PasswordBearer(
 async def get_current_user(
     token: str = Depends(oauth2_scheme)
 ):
-    try:
-        payload = jwt.decode(
-            token, settings.JWT_SECRET, algorithms=[settings.JWT_ALGORITHM]
-        )
-        token_data = TokenData(email=payload.get("sub"))
-    except (JWTError, ValidationError):
+    email = verify_access_token(token)
+    if not email:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Could not validate credentials",
         )
+    token_data = TokenData(email=email)
     
     db = get_database()
     user = await db["users"].find_one({"email": token_data.email})

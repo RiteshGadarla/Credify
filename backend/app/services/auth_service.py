@@ -1,20 +1,16 @@
-from datetime import timedelta
-from typing import Any
-from fastapi import APIRouter, Body, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordRequestForm
+from datetime import datetime, timedelta
+import uuid
+from typing import Optional
+from fastapi import HTTPException, status
 from google.oauth2 import id_token
 from google.auth.transport import requests as google_requests
-from ..core.config import settings
-from ..core.security import create_access_token, get_password_hash, verify_password
-from ..db.mongodb import get_database
-from ..models.user import UserCreate, UserOut, Token, UserInDB
-from datetime import datetime
-import uuid
 
-router = APIRouter()
+from app.core.config import settings
+from app.utils.auth import create_access_token, get_password_hash, verify_password
+from app.utils.mongo import get_database
+from app.schemas.user import UserCreate, UserOut, Token
 
-@router.post("/signup", response_model=UserOut)
-async def signup(user_in: UserCreate):
+async def signup_user(user_in: UserCreate) -> dict:
     db = get_database()
     user = await db["users"].find_one({"email": user_in.email})
     if user:
@@ -27,8 +23,7 @@ async def signup(user_in: UserCreate):
     if user_dict.get("password"):
         user_dict["hashed_password"] = get_password_hash(user_dict.pop("password"))
     else:
-        # For social login or empty password signup
-        user_dict.pop("password")
+        user_dict.pop("password", None)
         user_dict["hashed_password"] = None
 
     user_dict["_id"] = str(uuid.uuid4())
@@ -36,19 +31,14 @@ async def signup(user_in: UserCreate):
     
     await db["users"].insert_one(user_dict)
     
-    # Return user with id string
     user_dict["id"] = user_dict.pop("_id")
     return user_dict
 
-@router.post("/login", response_model=Token)
-async def login(form_data: OAuth2PasswordRequestForm = Depends()):
+async def authenticate_user(email: str, password: str) -> Optional[dict]:
     db = get_database()
-    user = await db["users"].find_one({"email": form_data.username})
-    if not user or not user.get("hashed_password") or not verify_password(form_data.password, user["hashed_password"]):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect email or password",
-        )
+    user = await db["users"].find_one({"email": email})
+    if not user or not user.get("hashed_password") or not verify_password(password, user["hashed_password"]):
+        return None
     
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     return {
@@ -58,14 +48,8 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
         "token_type": "bearer",
     }
 
-@router.post("/google", response_model=Token)
-async def google_auth(token: str = Body(..., embed=True)):
-    """
-    Frontend sends Google ID Token (credential)
-    Backend verifies it and returns a JWT
-    """
+async def google_authenticate(token: str) -> dict:
     try:
-        # Verify Google ID token
         idinfo = id_token.verify_oauth2_token(
             token, 
             google_requests.Request(), 
@@ -80,7 +64,6 @@ async def google_auth(token: str = Body(..., embed=True)):
         user = await db["users"].find_one({"email": email})
         
         if not user:
-            # Create a new user if they don't exist
             user_dict = {
                 "_id": str(uuid.uuid4()),
                 "email": email,
@@ -92,7 +75,6 @@ async def google_auth(token: str = Body(..., embed=True)):
             }
             await db["users"].insert_one(user_dict)
         else:
-            # Update user info and ensure provider is set to google
             await db["users"].update_one(
                 {"email": email},
                 {"$set": {
@@ -101,7 +83,6 @@ async def google_auth(token: str = Body(..., embed=True)):
                 }}
             )
 
-        # Generate our own internal JWT for the session
         access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
         return {
             "access_token": create_access_token(
@@ -110,15 +91,12 @@ async def google_auth(token: str = Body(..., embed=True)):
             "token_type": "bearer",
         }
     except ValueError as e:
-        # Invalid token
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=f"Invalid Google token: {str(e)}",
         )
     except Exception as e:
-        # Other errors
-        print(f"Error during Google Auth: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Internal server error during authentication",
+            detail=f"Internal server error during authentication: {str(e)}",
         )
