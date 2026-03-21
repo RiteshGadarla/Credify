@@ -19,9 +19,8 @@ const FactCheckDashboard = () => {
         queryKey: ['factCheckStatus', activeTaskId],
         queryFn: () => getAnalysisStatus(activeTaskId),
         enabled: !!activeTaskId,
-        refetchInterval: (data) => {
-            if (!data) return 1000;
-            // Stop polling if completed or failed
+        refetchInterval: (query) => {
+            const data = query.state?.data;
             if (data?.status?.startsWith('Completed') || data?.status?.startsWith('Failed')) {
                 return false;
             }

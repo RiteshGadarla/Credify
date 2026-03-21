@@ -3,7 +3,7 @@ from typing import List, Optional, Dict, Literal
 
 class Claim(BaseModel):
     claim: str
-    status: Literal["VALID", "AMBIGUOUS"]
+    status: Literal["VALID", "AMBIGUOUS", "REJECTED"]
     confidence: float
 
 class ClaimExtractionResponse(BaseModel):
@@ -25,6 +25,19 @@ class Evidence(BaseModel):
     words_count: int = 0
     number_of_numbers: int = 0
     number_of_links: int = 0
+    # New fields for multi-dimensional scoring
+    published_at: Optional[str] = None  # ISO 8601 timestamp
+    tld: str = ""  # Top-level domain (e.g., ".gov", ".com")
+    is_https: bool = False
+    author: Optional[str] = None
+    credibility_breakdown: Optional[Dict] = None  # Full score component breakdown
+
+class CredibilityScoreResult(BaseModel):
+    """Structured output from the credibility engine with full explainability."""
+    final_score: float
+    components: Dict[str, float]
+    is_outdated: bool
+    reasoning: str
 
 class AgentArgumentOutput(BaseModel):
     arguments: List[str]
@@ -42,7 +55,7 @@ class OpponentOutput(BaseModel):
     confidence: float
 
 class JudgeOutput(BaseModel):
-    verdict: Literal["TRUE", "FALSE", "UNCERTAIN"]
+    verdict: Literal["TRUE", "FALSE", "UNCERTAIN", "PARTIAL", "CONFLICT"]
     confidence: float
     reasoning: str
     key_evidence: List[Evidence]

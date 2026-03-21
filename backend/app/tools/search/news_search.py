@@ -1,9 +1,23 @@
 import httpx
+from urllib.parse import urlparse
 from typing import List
 from app.models.fact_check import Evidence
 from app.core.config import settings
 from app.utils.logger import logger
 from app.tools.extraction.content_extractor import ContentExtractor
+
+
+def _extract_url_metadata(url: str) -> dict:
+    """Extract TLD and HTTPS flag from a URL."""
+    try:
+        parsed = urlparse(url)
+        netloc = parsed.netloc.lower().replace("www.", "")
+        parts = netloc.rsplit(".", 1)
+        tld = "." + parts[-1] if len(parts) >= 2 else ""
+        is_https = parsed.scheme == "https"
+        return {"tld": tld, "is_https": is_https}
+    except Exception:
+        return {"tld": "", "is_https": False}
 
 class BaseNewsProvider:
     """Base interface for extending retrieval with multiple providers."""
@@ -53,6 +67,7 @@ class NewsAPIProvider(BaseNewsProvider):
                         
                     # Use ContentExtractor tool to fetch metadata
                     metadata = ContentExtractor.compute_metadata(description, content)
+                    url_meta = _extract_url_metadata(url)
                     
                     evidence = Evidence(
                         source=source_name,
@@ -60,10 +75,14 @@ class NewsAPIProvider(BaseNewsProvider):
                         content=content,
                         snippet=description[:200] + ("..." if len(description) > 200 else ""),
                         credibility_score=0.0,
-                        domain_age_days=0, # Explicitly unassigned / neutral
+                        domain_age_days=0,
                         words_count=metadata["words_count"],
                         number_of_numbers=metadata["number_of_numbers"],
-                        number_of_links=metadata["number_of_links"]
+                        number_of_links=metadata["number_of_links"],
+                        published_at=article.get("publishedAt"),
+                        tld=url_meta["tld"],
+                        is_https=url_meta["is_https"],
+                        author=article.get("author"),
                     )
                     evidence_list.append(evidence)
                     
@@ -99,8 +118,11 @@ class SerperNewsProvider(BaseNewsProvider):
                 organic_results = data.get("organic", [])[:num_results]
 
                 for item in organic_results:
-                    source_name = item.get("source", "Google Search")
                     url = item.get("link", "")
+                    source_name = item.get("source")
+                    if not source_name or source_name == "Google Search":
+                        source_name = urlparse(url).netloc.replace("www.", "") if url else "Google Search"
+                    
                     description = item.get("snippet", "")
                     content = description  # without full page scraping, fallback to snippet
                     title = item.get("title", "")
@@ -110,6 +132,7 @@ class SerperNewsProvider(BaseNewsProvider):
                         
                     # Use ContentExtractor tool to fetch metadata
                     metadata = ContentExtractor.compute_metadata(title + " " + description, content)
+                    url_meta = _extract_url_metadata(url)
                     
                     evidence = Evidence(
                         source=source_name,
@@ -117,10 +140,13 @@ class SerperNewsProvider(BaseNewsProvider):
                         content=content,
                         snippet=description[:200] + ("..." if len(description) > 200 else ""),
                         credibility_score=0.0,
-                        domain_age_days=0, # Explicitly unassigned / neutral
+                        domain_age_days=0,
                         words_count=metadata["words_count"],
                         number_of_numbers=metadata["number_of_numbers"],
-                        number_of_links=metadata["number_of_links"]
+                        number_of_links=metadata["number_of_links"],
+                        published_at=item.get("date"),
+                        tld=url_meta["tld"],
+                        is_https=url_meta["is_https"],
                     )
                     evidence_list.append(evidence)
 

@@ -25,6 +25,14 @@ const Sidebar = () => {
                     <CheckCircle size={20} />
                     <span>Fact Check</span>
                 </NavLink>
+                <div className="nav-item disabled" style={{opacity: 0.5, cursor: 'not-allowed'}} title="Coming Soon">
+                    <CheckCircle size={20} />
+                    <span>AI Detection</span>
+                </div>
+                <div className="nav-item disabled" style={{opacity: 0.5, cursor: 'not-allowed'}} title="Coming Soon">
+                    <CheckCircle size={20} />
+                    <span>Deepfake Detection</span>
+                </div>
             </nav>
 
             <div className="sidebar-footer">

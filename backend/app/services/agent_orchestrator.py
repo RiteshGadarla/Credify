@@ -13,6 +13,7 @@ from app.agents.credibility_scoring_agent import CredibilityScoringAgent
 from app.agents.verification_agent import VerificationAgent
 from app.agents.debate_agent import DebateAgent
 from app.agents.response_agent import ResponseAgent
+from app.agents.summary_agent import SummaryAgent
 
 class AgentOrchestrator:
     """
@@ -27,9 +28,10 @@ class AgentOrchestrator:
         self.verifier = VerificationAgent()
         self.debater = DebateAgent()
         self.responder = ResponseAgent()
+        self.summarizer = SummaryAgent()
 
     @classmethod
-    async def create_task(cls, text: str) -> str:
+    async def create_task(cls, text: str, user_id: str = "") -> str:
         logger.info("AgentOrchestrator: Creating new task...")
         db = get_database()
         task_id = str(uuid.uuid4())
@@ -38,6 +40,7 @@ class AgentOrchestrator:
             "text": text,
             "status": "Initializing...",
             "claims": [],
+            "user_id": user_id,
             "created_at": datetime.datetime.utcnow()
         }
         await db[cls.COLLECTION].insert_one(doc)
@@ -54,26 +57,23 @@ class AgentOrchestrator:
     @classmethod
     async def update_claim(cls, task_id: str, claim_text: str, update_data: dict):
         db = get_database()
-        doc = await db[cls.COLLECTION].find_one({"task_id": task_id})
-        if not doc:
-            return
-            
-        claims = doc.get("claims", [])
-        updated = False
-        for c in claims:
-            if c["claim"] == claim_text:
-                c.update(update_data)
-                updated = True
-                break
-                
-        if not updated:
-            new_claim = {"claim": claim_text, **update_data}
-            claims.append(new_claim)
-            
-        await db[cls.COLLECTION].update_one(
-            {"task_id": task_id},
-            {"$set": {"claims": claims}}
+        
+        # Build atomic set updates for the matched array element
+        set_fields = {f"claims.$.{k}": v for k, v in update_data.items()}
+        
+        # Try to update existing claim directly
+        result = await db[cls.COLLECTION].update_one(
+            {"task_id": task_id, "claims.claim": claim_text},
+            {"$set": set_fields}
         )
+        
+        # If the claim was not in the array, push a new one atomically
+        if result.matched_count == 0:
+            new_claim = {"claim": claim_text, **update_data}
+            await db[cls.COLLECTION].update_one(
+                {"task_id": task_id},
+                {"$push": {"claims": new_claim}}
+            )
 
     @classmethod
     async def get_task(cls, task_id: str) -> dict:
@@ -81,8 +81,10 @@ class AgentOrchestrator:
         doc = await db[cls.COLLECTION].find_one({"task_id": task_id}, {"_id": 0})
         return doc
 
-    async def _process_single_claim(self, task_id: str, claim: Claim):
+    async def _process_single_claim(self, task_id: str, claim: Claim, user_id: str = ""):
         try:
+            db = get_database()
+            
             # 1. Parse & Decompose
             await self.update_claim(task_id, claim.claim, {"status": "Generating queries..."})
             queries = await self.parser.decompose(claim.claim)
@@ -94,6 +96,16 @@ class AgentOrchestrator:
             # 3. Score Credibility
             await self.update_claim(task_id, claim.claim, {"status": "Computing credibility..."})
             scored_evidence = await self.scorer.run(evidence_list)
+            
+            # Start Fake Streaming URLs Queue Animation
+            await self.update_claim(task_id, claim.claim, {"status": "Streaming sources...", "streaming_sources": []})
+            queue = []
+            for ev in scored_evidence:
+                queue.append(ev.model_dump())
+                if len(queue) > 5:
+                    queue.pop(0)
+                await self.update_claim(task_id, claim.claim, {"streaming_sources": queue})
+                await asyncio.sleep(0.5) # Simulate retrieval animation
             
             # 4. Verify
             await self.update_claim(task_id, claim.claim, {"status": "Verifying claim against evidence..."})
@@ -114,37 +126,83 @@ class AgentOrchestrator:
                 debate_results=debate_results
             )
             
-            # Update DB
-            await self.update_claim(task_id, claim.claim, {
+            # 7. Summary
+            await self.update_claim(task_id, claim.claim, {"status": "Generating summary explanation..."})
+            summary_output = await self.summarizer.run(
+                claim=claim.claim,
+                verdict=final_output.verdict,
+                confidence=final_output.confidence,
+                evidence_list=scored_evidence
+            )
+            
+            key_evidence_dicts = [e.model_dump() for e in final_output.key_evidence]
+            final_claim_update = {
                 "status": "Completed",
                 "verdict": final_output.verdict,
                 "confidence": final_output.confidence,
                 "reasoning": final_output.reasoning,
-                "key_evidence": [e.model_dump() for e in final_output.key_evidence]
-            })
+                "summary": summary_output.summary,
+                "key_points": summary_output.key_points,
+                "key_evidence": key_evidence_dicts,
+                "streaming_sources": key_evidence_dicts
+            }
+            
+            # Update DB
+            await self.update_claim(task_id, claim.claim, final_claim_update)
+            
+            # Save to history (user-scoped)
+            history_record = {
+                "task_id": task_id,
+                "user_id": user_id,
+                "claim": claim.claim,
+                "verdict": final_output.verdict,
+                "confidence": final_output.confidence,
+                "summary": summary_output.summary,
+                "key_points": summary_output.key_points,
+                "sources": key_evidence_dicts,
+                "timestamp": datetime.datetime.utcnow().isoformat()
+            }
+            await db["history"].insert_one(history_record)
             
         except Exception as e:
             logger.error(f"Error processing claim {claim.claim}: {e}")
             await self.update_claim(task_id, claim.claim, {"status": f"Failed: {str(e)}"})
 
     @classmethod
-    async def analyze_claim_pipeline(cls, task_id: str, claim: Claim):
+    async def analyze_claim_pipeline(cls, task_id: str, claim: Claim, user_id: str = ""):
         """Classmethod bridge for background tasks"""
         orchestrator = cls()
-        await orchestrator._process_single_claim(task_id, claim)
+        await orchestrator._process_single_claim(task_id, claim, user_id)
 
     @classmethod
-    async def run_full_analysis(cls, task_id: str, text: str):
+    async def run_full_analysis(cls, task_id: str, text: str, user_id: str = ""):
         logger.info(f"AgentOrchestrator: Kicking off full analysis for task: {task_id}")
         orchestrator = cls()
         try:
+            db = get_database()
+            
             await cls.update_task_status(task_id, "Extracting claims...")
             claims = await orchestrator.parser.run(text)
             
-            valid_claims = [c for c in claims if c.status == "VALID"]
+            # Check for rejected input (not a fact-checking query)
+            rejected_claims = [c for c in claims if c.status == "REJECTED"]
+            if rejected_claims:
+                logger.info("Input rejected — not a fact-checking query.")
+                await cls.update_task_status(
+                    task_id,
+                    "Completed - This doesn't appear to be a fact-checkable claim. "
+                    "Please enter a factual statement or claim you'd like verified."
+                )
+                return
             
+            valid_claims = [c for c in claims if c.status == "VALID"]
             if not valid_claims:
-                await cls.update_task_status(task_id, "Completed - No valid claims found.")
+                logger.info("No valid claims found.")
+                ambiguous_count = len([c for c in claims if c.status == "AMBIGUOUS"])
+                if ambiguous_count > 0:
+                    await cls.update_task_status(task_id, f"Completed - {ambiguous_count} ambiguous statement(s) found, but zero verifiable claims.")
+                else:
+                    await cls.update_task_status(task_id, "Completed - No valid claims found.")
                 return
 
             await cls.update_task_status(task_id, "Analyzing claims...")
@@ -153,7 +211,7 @@ class AgentOrchestrator:
                 await cls.update_claim(task_id, c.claim, {"status": "Pending"})
 
             # Process all valid claims in parallel
-            tasks = [orchestrator._process_single_claim(task_id, c) for c in valid_claims]
+            tasks = [orchestrator._process_single_claim(task_id, c, user_id) for c in valid_claims]
             await asyncio.gather(*tasks)
 
             await cls.update_task_status(task_id, "Completed")

@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import auth, deps, fact_check
+from app.routers import auth, deps, fact_check, history
 from app.utils.mongo import connect_to_mongo, close_mongo_connection
 from app.core.config import settings
 from app.utils.logger import logger
@@ -34,6 +34,7 @@ async def shutdown_db_client():
 # Auth routes
 app.include_router(auth.router, prefix="/auth", tags=["auth"])
 app.include_router(fact_check.router, prefix="/api/fact-check", tags=["fact_check"])
+app.include_router(history.router, prefix="/api/history", tags=["history"])
 
 # Protected route example (ready for expansion)
 @app.get("/me")

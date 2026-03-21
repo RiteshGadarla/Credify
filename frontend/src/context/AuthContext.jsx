@@ -15,8 +15,9 @@ export const AuthProvider = ({ children }) => {
       
       if (token && savedUser) {
         setUser(JSON.parse(savedUser));
+        setLoading(false); // Stop loading immediately to prevent flicker, verify in background
         try {
-          // Verify token by calling /me (backend should provide this)
+          // Verify token by calling /me
           const response = await api.get('/me');
           if (response.data) {
             setUser(response.data);
@@ -26,8 +27,9 @@ export const AuthProvider = ({ children }) => {
           console.error("Session expired or invalid token", error);
           logout();
         }
+      } else {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
     initializeAuth();
