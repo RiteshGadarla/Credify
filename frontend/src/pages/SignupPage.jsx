@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { GoogleLogin } from '@react-oauth/google';
-import { Mail, Lock, User, UserPlus, AlertCircle, Loader } from 'lucide-react';
+import { Mail, Lock, User, UserPlus, AlertCircle, Loader2, ShieldCheck } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const SignupPage = () => {
@@ -22,7 +22,6 @@ const SignupPage = () => {
     
     const result = await signup(username, email, password);
     if (result.success) {
-      // Navigate to login after successful signup
       navigate('/login');
     } else {
       setError(result.message);
@@ -43,28 +42,49 @@ const SignupPage = () => {
   };
 
   return (
-    <div className="flex-center" style={{ minHeight: '80vh', padding: '2rem' }}>
+    <div className="flex-center" style={{ minHeight: '100vh', padding: '2rem', background: 'var(--bg-main)' }}>
       <motion.div 
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
         className="card" 
-        style={{ maxWidth: 450, width: '100%', padding: '3rem' }}
+        style={{ maxWidth: 420, width: '100%', padding: '2.5rem', boxShadow: 'var(--shadow-lg)' }}
       >
-        <div className="text-center" style={{ marginBottom: '2.5rem' }}>
-          <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>Create Account</h2>
-          <p style={{ color: 'var(--text-muted)' }}>Join Credify and start verifying today</p>
+        {/* Brand */}
+        <div className="text-center" style={{ marginBottom: '2rem' }}>
+          <div className="flex-center" style={{ gap: '0.4rem', marginBottom: '1.25rem' }}>
+            <ShieldCheck size={24} style={{ color: 'var(--primary-dark)' }} />
+            <span style={{ fontWeight: 800, fontSize: '1.15rem', color: 'var(--text-primary)' }}>Credify</span>
+          </div>
+          <h2 style={{ fontSize: '1.5rem', marginBottom: '0.35rem', fontWeight: 700 }}>Create Account</h2>
+          <p style={{ color: 'var(--text-tertiary)', fontSize: '0.88rem', margin: 0 }}>Join Credify and start verifying claims today</p>
         </div>
 
         {error && (
-          <div className="flex-center" style={{ gap: '0.5rem', padding: '1rem', background: 'rgba(239, 83, 80, 0.1)', color: 'var(--danger)', borderRadius: 'var(--radius)', marginBottom: '1.5rem', fontWeight: 500 }}>
-            <AlertCircle size={20} />
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            className="flex-center"
+            style={{
+              gap: '0.5rem',
+              padding: '0.75rem 1rem',
+              background: 'var(--danger-light)',
+              color: 'var(--danger)',
+              borderRadius: 'var(--radius)',
+              marginBottom: '1.25rem',
+              fontWeight: 500,
+              fontSize: '0.85rem',
+              border: '1px solid rgba(239, 83, 80, 0.2)'
+            }}
+          >
+            <AlertCircle size={16} />
             {error}
-          </div>
+          </motion.div>
         )}
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label className="form-label"><User size={14} style={{ marginRight: '0.5rem' }} /> Full Name</label>
+            <label className="form-label"><User size={13} /> Full Name</label>
             <input 
               type="text" 
               className="form-input" 
@@ -72,10 +92,11 @@ const SignupPage = () => {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               required
+              id="signup-name"
             />
           </div>
           <div className="form-group">
-            <label className="form-label"><Mail size={14} style={{ marginRight: '0.5rem' }} /> Email Address</label>
+            <label className="form-label"><Mail size={13} /> Email Address</label>
             <input 
               type="email" 
               className="form-input" 
@@ -83,10 +104,11 @@ const SignupPage = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              id="signup-email"
             />
           </div>
-          <div className="form-group" style={{ marginBottom: '2rem' }}>
-            <label className="form-label"><Lock size={14} style={{ marginRight: '0.5rem' }} /> Password</label>
+          <div className="form-group" style={{ marginBottom: '1.5rem' }}>
+            <label className="form-label"><Lock size={13} /> Password</label>
             <input 
               type="password" 
               className="form-input" 
@@ -95,17 +117,25 @@ const SignupPage = () => {
               onChange={(e) => setPassword(e.target.value)}
               required
               minLength={6}
+              id="signup-password"
             />
+            <p style={{ fontSize: '0.72rem', color: 'var(--text-tertiary)', marginTop: '0.35rem' }}>Minimum 6 characters</p>
           </div>
           
-          <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '0.8rem', fontSize: '1rem' }} disabled={loading}>
-            {loading ? <Loader size={20} className="animate-spin" /> : <><UserPlus size={20} /> Create Account</>}
+          <button
+            type="submit"
+            className="btn btn-primary"
+            style={{ width: '100%', padding: '0.75rem', fontSize: '0.9rem' }}
+            disabled={loading}
+            id="signup-submit"
+          >
+            {loading ? <Loader2 size={18} className="animate-spin" /> : <><UserPlus size={18} /> Create Account</>}
           </button>
         </form>
 
-        <div className="flex-center" style={{ margin: '2rem 0', gap: '1rem', color: 'var(--text-muted)' }}>
+        <div className="flex-center" style={{ margin: '1.5rem 0', gap: '0.75rem', color: 'var(--text-tertiary)' }}>
           <div style={{ flex: 1, height: '1px', background: 'var(--border-color)' }}></div>
-          <span style={{ fontSize: '0.9rem' }}>OR</span>
+          <span style={{ fontSize: '0.78rem', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.05em' }}>or</span>
           <div style={{ flex: 1, height: '1px', background: 'var(--border-color)' }}></div>
         </div>
 
@@ -120,8 +150,9 @@ const SignupPage = () => {
           />
         </div>
 
-        <div className="text-center" style={{ marginTop: '2.5rem', color: 'var(--text-muted)' }}>
-          Already have an account? <Link to="/login" style={{ color: 'var(--primary-dark)', fontWeight: 600 }}>Login</Link>
+        <div className="text-center" style={{ marginTop: '2rem', color: 'var(--text-tertiary)', fontSize: '0.88rem' }}>
+          Already have an account?{' '}
+          <Link to="/login" style={{ color: 'var(--primary-dark)', fontWeight: 600 }}>Sign in</Link>
         </div>
       </motion.div>
     </div>

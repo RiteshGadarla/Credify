@@ -10,15 +10,31 @@ import DashboardPage from './pages/DashboardPage';
 import FactCheckDashboard from './pages/FactCheckDashboard';
 import './styles/index.css';
 
+const LoadingScreen = () => (
+  <div className="flex-center" style={{ height: '100vh', background: 'var(--bg-main)' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
+      <div style={{
+        width: 36,
+        height: 36,
+        border: '3px solid var(--border-color)',
+        borderTopColor: 'var(--primary-dark)',
+        borderRadius: '50%',
+        animation: 'spin 0.7s linear infinite',
+      }}></div>
+      <p style={{ color: 'var(--text-tertiary)', fontSize: '0.9rem' }}>Loading...</p>
+    </div>
+  </div>
+);
+
 const AppRoutes = () => {
   const { user, loading } = useAuth();
   
-  if (loading) return <div className="flex-center" style={{height: '100vh'}}>Loading...</div>;
+  if (loading) return <LoadingScreen />;
 
   return (
-    <div className="app-layout" style={{ display: 'flex', minHeight: '100vh', width: '100%' }}>
+    <div style={{ display: 'flex', minHeight: '100vh', width: '100%', background: 'var(--bg-main)' }}>
       {user && <Sidebar />}
-      <div className="app-content" style={{ flex: 1, overflowY: 'auto' }}>
+      <main style={{ flex: 1, overflowY: 'auto', height: '100vh' }}>
         <Routes>
           {/* Unauthenticated Routes */}
           {!user ? (
@@ -36,7 +52,7 @@ const AppRoutes = () => {
             </>
           )}
         </Routes>
-      </div>
+      </main>
     </div>
   );
 };
