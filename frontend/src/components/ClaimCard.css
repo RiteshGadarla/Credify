@@ -1,0 +1,158 @@
+.claim-card {
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background: #ffffff;
+    overflow: hidden;
+    transition: all 0.2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.claim-card.true { border-left: 4px solid #10b981; }
+.claim-card.false { border-left: 4px solid #ef4444; }
+.claim-card.uncertain { border-left: 4px solid #f59e0b; }
+.claim-card.pending { border-left: 4px solid #3b82f6; opacity: 0.8; }
+
+.claim-header {
+    padding: 1rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    background: #f8fafc;
+}
+
+.claim-header:hover {
+    background: #f1f5f9;
+}
+
+.claim-header-main h4 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.1rem;
+    color: #1e293b;
+}
+
+.claim-status-badges {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 0.875rem;
+}
+
+.status-badge {
+    background: #e2e8f0;
+    color: #475569;
+    padding: 0.2rem 0.6rem;
+    border-radius: 12px;
+    font-weight: 500;
+}
+
+.verdict-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.icon { width: 18px; height: 18px; }
+.icon.true { color: #10b981; }
+.icon.false { color: #ef4444; }
+.icon.uncertain { color: #f59e0b; }
+
+.conf { color: #64748b; }
+
+.expand-btn {
+    background: none;
+    border: none;
+    color: #64748b;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.claim-details {
+    padding: 1.5rem;
+    border-top: 1px solid #e2e8f0;
+}
+
+.reasoning-box {
+    background: #f8fafc;
+    padding: 1rem;
+    border-radius: 6px;
+    margin-bottom: 1.5rem;
+    border: 1px solid #e2e8f0;
+}
+
+.reasoning-box p {
+    margin: 0.5rem 0 0 0;
+    color: #334155;
+    line-height: 1.5;
+}
+
+.agents-split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.agent-col {
+    padding: 1rem;
+    border-radius: 6px;
+}
+
+.agent-col.proponent { background: #ecfdf5; border: 1px solid #a7f3d0; }
+.agent-col.opponent { background: #fef2f2; border: 1px solid #fecaca; }
+
+.agent-col h5 {
+    margin: 0 0 0.75rem 0;
+    font-size: 0.95rem;
+    color: #1e293b;
+}
+
+.agent-col ul {
+    margin: 0;
+    padding-left: 1.25rem;
+    color: #475569;
+    font-size: 0.9rem;
+}
+.agent-col li { margin-bottom: 0.4rem; }
+
+.evidence-section h5 {
+    margin: 0 0 1rem 0;
+    font-size: 1rem;
+    color: #1e293b;
+}
+
+.evidence-item {
+    padding: 0.75rem;
+    border-left: 2px solid #cbd5e1;
+    margin-bottom: 0.75rem;
+    background: #f8fafc;
+}
+
+.ev-source {
+    font-weight: 600;
+    color: #2563eb;
+    text-decoration: none;
+    margin-right: 1rem;
+}
+
+.ev-score {
+    font-size: 0.85rem;
+    background: #e2e8f0;
+    padding: 0.1rem 0.4rem;
+    border-radius: 4px;
+    font-family: monospace;
+}
+
+.ev-snippet {
+    margin: 0.5rem 0 0 0;
+    font-size: 0.9rem;
+    color: #475569;
+    font-style: italic;
+}
+
+.pending-state {
+    color: #64748b;
+    font-style: italic;
+}

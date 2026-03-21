@@ -3,7 +3,7 @@ from fastapi.security import OAuth2PasswordBearer
 from app.core.config import settings
 from app.utils.mongo import get_database
 from app.utils.auth import verify_access_token
-from app.schemas.user import TokenData
+from app.models.user import TokenData
 
 oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl="/auth/login"

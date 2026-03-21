@@ -1,6 +1,5 @@
 from motor.motor_asyncio import AsyncIOMotorClient
 from app.core.config import settings
-from app.utils.logger import logger
 
 class Database:
     client: AsyncIOMotorClient = None
@@ -13,16 +12,13 @@ async def connect_to_mongo():
     try:
         db_connection.client = AsyncIOMotorClient(settings.MONGO_URI)
         db_connection.db = db_connection.client[settings.DATABASE_NAME]
-        logger.info(f"Connected to MongoDB: {settings.MONGO_URI} (DB: {settings.DATABASE_NAME})")
     except Exception as e:
-        logger.error(f"Failed to connect to MongoDB: {e}")
         raise e
 
 async def close_mongo_connection():
     """Closes the MongoDB connection."""
     if db_connection.client:
         db_connection.client.close()
-        logger.info("Closed MongoDB connection")
 
 def get_database():
     """Dependency helper to get database instance."""

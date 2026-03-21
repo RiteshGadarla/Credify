@@ -1,18 +1,22 @@
 from fastapi import APIRouter, Body, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
-from app.schemas.user import UserCreate, UserOut, Token
+from app.models.user import UserCreate, UserOut, Token
 from app.services import auth_service
+from app.utils.logger import logger
 
 router = APIRouter()
 
 @router.post("/signup", response_model=UserOut)
 async def signup(user_in: UserCreate):
+    logger.info(f"Signup attempt started for {user_in.email}")
     return await auth_service.signup_user(user_in)
 
 @router.post("/login", response_model=Token)
 async def login(form_data: OAuth2PasswordRequestForm = Depends()):
+    logger.info(f"Login attempt for user: {form_data.username}")
     result = await auth_service.authenticate_user(form_data.username, form_data.password)
     if not result:
+        logger.warning(f"Failed login attempt for {form_data.username}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password",

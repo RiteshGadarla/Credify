@@ -35,21 +35,6 @@ const LandingPage = () => {
         </motion.div>
       </section>
 
-      {/* Features */}
-      <section className="container" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '2rem' }}>
-        {[
-          { icon: <ShieldCheck size={32} />, title: "Secure & Reliable", desc: "Built with production-grade security and robust architecture." },
-          { icon: <Zap size={32} />, title: "Instant Verification", desc: "Get verification results in milliseconds with our optimized engine." },
-          { icon: <Globe size={32} />, title: "Global Scale", desc: "Supporting multiple languages and global data sources." }
-        ].map((feature, i) => (
-          <div key={i} className="card" style={{ textAlign: 'center' }}>
-            <div style={{ color: 'var(--primary-dark)', marginBottom: '1.5rem', display: 'flex', justifyContent: 'center' }}>{feature.icon}</div>
-            <h3 style={{ marginBottom: '1rem' }}>{feature.title}</h3>
-            <p style={{ color: 'var(--text-muted)' }}>{feature.desc}</p>
-          </div>
-        ))}
-      </section>
-
       {/* Footer */}
       <footer className="container" style={{ marginTop: '10rem', borderTop: '1px solid var(--border-color)', paddingTop: '3rem' }}>
         <p className="text-center" style={{ color: 'var(--text-muted)' }}>

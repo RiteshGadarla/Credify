@@ -15,6 +15,7 @@ class Settings(BaseSettings):
     GOOGLE_CLIENT_SECRET: str = os.getenv("GOOGLE_CLIENT_SECRET", "")
     GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")
     FAST_API_PORT: int = int(os.getenv("FAST_API_PORT", 8000))
+    SERPER_API_KEY: str = os.getenv("SERPER_API_KEY", "key-insert")
 
     class Config:
         case_sensitive = True

@@ -8,12 +8,14 @@ from google.auth.transport import requests as google_requests
 from app.core.config import settings
 from app.utils.auth import create_access_token, get_password_hash, verify_password
 from app.utils.mongo import get_database
-from app.schemas.user import UserCreate, UserOut, Token
+from app.models.user import UserCreate, UserOut, Token
+from app.utils.logger import logger
 
 async def signup_user(user_in: UserCreate) -> dict:
     db = get_database()
     user = await db["users"].find_one({"email": user_in.email})
     if user:
+        logger.warning(f"Signup declined: email {user_in.email} already exists")
         raise HTTPException(
             status_code=400,
             detail="A user with this email already exists.",
@@ -32,12 +34,14 @@ async def signup_user(user_in: UserCreate) -> dict:
     await db["users"].insert_one(user_dict)
     
     user_dict["id"] = user_dict.pop("_id")
+    logger.info(f"User {user_in.email} successfully created")
     return user_dict
 
 async def authenticate_user(email: str, password: str) -> Optional[dict]:
     db = get_database()
     user = await db["users"].find_one({"email": email})
     if not user or not user.get("hashed_password") or not verify_password(password, user["hashed_password"]):
+        logger.warning(f"Authentication failed for user: {email}")
         return None
     
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
@@ -91,11 +95,13 @@ async def google_authenticate(token: str) -> dict:
             "token_type": "bearer",
         }
     except ValueError as e:
+        logger.error(f"Google auth value error: {e}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=f"Invalid Google token: {str(e)}",
         )
     except Exception as e:
+        logger.error(f"Google auth generic error: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Internal server error during authentication: {str(e)}",

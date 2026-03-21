@@ -1,8 +1,9 @@
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import auth, deps
+from app.routers import auth, deps, fact_check
 from app.utils.mongo import connect_to_mongo, close_mongo_connection
 from app.core.config import settings
+from app.utils.logger import logger
 
 app = FastAPI(title=settings.PROJECT_NAME)
 
@@ -22,14 +23,17 @@ app.add_middleware(
 
 @app.on_event("startup")
 async def startup_db_client():
+    logger.info("Starting up FastAPI application...")
     await connect_to_mongo()
 
 @app.on_event("shutdown")
 async def shutdown_db_client():
+    logger.info("Shutting down FastAPI application...")
     await close_mongo_connection()
 
 # Auth routes
 app.include_router(auth.router, prefix="/auth", tags=["auth"])
+app.include_router(fact_check.router, prefix="/api/fact-check", tags=["fact_check"])
 
 # Protected route example (ready for expansion)
 @app.get("/me")

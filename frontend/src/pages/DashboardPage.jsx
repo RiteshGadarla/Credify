@@ -1,6 +1,6 @@
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Navigate } from 'react-router-dom';
+import { Navigate, Link } from 'react-router-dom';
 import { LayoutDashboard, Shield, AlertCircle, TrendingUp, History } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -56,7 +56,7 @@ const DashboardPage = () => {
           </h3>
           <div className="flex-center" style={{ height: '300px', flexDirection: 'column', color: 'var(--text-muted)' }}>
             <p>No claims verified yet.</p>
-            <button className="btn btn-primary" style={{ marginTop: '1rem' }}>Start New Verification</button>
+            <Link to="/fact-check" className="btn btn-primary" style={{ marginTop: '1rem' }}>Start New Verification</Link>
           </div>
         </section>
 
