@@ -45,6 +45,7 @@ GOOGLE_CLIENT_ID=your_google_client_id
 GOOGLE_CLIENT_SECRET=your_google_client_secret
 ACCESS_TOKEN_EXPIRE_MINUTES=43200
 GEMINI_API_KEY=your_gemini_api_key
+SERPER_API_KEY=your_serper_api_key
 ```
 
 #### 🌐 Frontend (`frontend/.env`)
@@ -99,27 +100,44 @@ The backend includes a dedicated `run.py` script for advanced management:
   - `core/`: Application settings and global configuration.
   - `routers/`: API route definitions.
   - `services/`: Business logic layer separating logic from transport.
-  - `schemas/`: Pydantic data models (DTOs).
-  - `models/`: Database collections/models.
+  - `models/`: Centralized Pydantic data models and Database schemas.
+  - `agents/`: AI agents dedicated to processing claims and summarization.
+  - `tools/`: Reusable tools (e.g. Real-Time Search) used by the agents.
   - `utils/`: High-performance utility modules (Logger, Auth, Gemini, Mongo).
 - **Async Database Driver:** Uses `motor` for high-performance MongoDB interactions.
 - **Security:** JWT Authentication with `python-jose` and `passlib` (bcrypt).
-- **AI Integration:** Seamless connection to Google Gemini models for analysis.
+- **Multi-Agent System:** Advanced AI pipeline orchestrating Gemini models and Real-Time external Search APIs (Serper) to perform verifiable fact-checking, complete with token streaming.
 
 
 #### Frontend (React + Vite)
 
-- **Light Theme UI:** A clean, modern aesthetic using premium blue accents.
+- **Dashboard UI:** A clean, command-center inspired dashboard showcasing dynamic interaction, responsive metrics, and personalized user history.
 - **Context API:** Global authentication state management via `AuthContext`.
 - **Protected Routes:** Dashboard access restricted to authenticated users.
 - **Animations:** Smooth transitions using `framer-motion`.
 
 ---
 
+### 🤖 The Agentic Flow
+
+Credify's core is powered by an orchestrator-driven multi-agent system that parallelizes claim verification. From user input to final output, the process involves:
+
+1. **Claim Parser Agent**: Decomposes raw user input into distinct, structurally verifiable claims and optimal search queries.
+2. **Evidence Retrieval Agent**: Interfaces with external search tools (e.g. Serper API) to gather real-world news and raw data related to the claims.
+3. **Credibility Scoring Agent**: Evaluates the retrieved search results for reliability and factual consistency, ranking the best sources.
+4. **Verification Agent**: Analyzes the claims specifically against the high-scored evidence to formulate an initial verdict and calculate a confidence score.
+5. **Debate Agent** *(Optional)*: Engages dynamically if the system detects a `CONFLICT` or computes a low-confidence score. It synthesizes multiple perspectives to act as a logic tie-breaker.
+6. **Response Agent**: Aggregates the gathered evidence and verification contexts to establish the final verifiable conclusion and reasoning.
+7. **Summary Agent**: Condenses the extensive technical analysis into an easily digestible, user-friendly summary.
+
+These agents are seamlessly managed by an orchestrator which safely runs parallel execution, resolving race conditions with atomic database updates, and synchronously streaming updates to the dashboard UI.
+
+---
+
 ## 🛠️ Tech Stack
 
 - **Frontend:** React, Vite, Axios, Framer Motion, Lucide Icons
-- **Backend:** FastAPI, Uvicorn, Motor (MongoDB), Pydantic
+- **Backend:** FastAPI, Uvicorn, Motor (MongoDB), Pydantic, Agentic Flow, Serper API
 - **Auth:** JWT, Google OAuth 2.0
 - **Database:** MongoDB
 

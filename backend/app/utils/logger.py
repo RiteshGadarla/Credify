@@ -10,7 +10,7 @@ logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(name)s - %(message)s",
     handlers=[
-        logging.FileHandler(LOG_FILE, mode='a'), # Append mode for persistent logs
+        logging.FileHandler(LOG_FILE, mode='w'), # Overwrite mode to clear logs on startup
         logging.StreamHandler()
     ]
 )

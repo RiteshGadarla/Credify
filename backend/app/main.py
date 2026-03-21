@@ -36,7 +36,7 @@ app.include_router(auth.router, prefix="/auth", tags=["auth"])
 app.include_router(fact_check.router, prefix="/api/fact-check", tags=["fact_check"])
 app.include_router(history.router, prefix="/api/history", tags=["history"])
 
-# Protected route example (ready for expansion)
+# Protected route example 
 @app.get("/me")
 async def read_users_me(current_user: dict = Depends(deps.get_current_user)):
     return current_user

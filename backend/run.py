@@ -29,7 +29,7 @@ def main():
     port = int(os.getenv("FAST_API_PORT", 8000))
 
     if args.env == "development":
-        print(f"🚀 Starting development server on port {port} with reload...")
+        print(f"Starting development server on port {port} with reload...")
         uvicorn.run(
             "app.main:app",
             host="0.0.0.0",
@@ -39,7 +39,7 @@ def main():
         )
 
     elif args.env == "production":
-        print(f"🔥 Starting production server on port {port} with {args.workers} workers...")
+        print(f"Starting production server on port {port} with {args.workers} workers...")
         uvicorn.run(
             "app.main:app",
             host="0.0.0.0",
