@@ -15,6 +15,9 @@ from app.agents.debate_agent import DebateAgent
 from app.agents.response_agent import ResponseAgent
 from app.agents.summary_agent import SummaryAgent
 
+# AI Text Detection
+from app.services.winston_service import detect_ai_text
+
 class AgentOrchestrator:
     """
     Controls execution flow: User Input -> Parser -> Retriever -> Scorer -> Verifier -> (Debater) -> Responder -> Output
@@ -80,6 +83,15 @@ class AgentOrchestrator:
         db = get_database()
         doc = await db[cls.COLLECTION].find_one({"task_id": task_id}, {"_id": 0})
         return doc
+
+    @classmethod
+    async def update_task_ai_detection(cls, task_id: str, detection_result) -> None:
+        """Stores the Winston AI detection result on the task document."""
+        db = get_database()
+        await db[cls.COLLECTION].update_one(
+            {"task_id": task_id},
+            {"$set": {"ai_detection": detection_result.model_dump()}}
+        )
 
     async def _process_single_claim(self, task_id: str, claim: Claim, user_id: str = ""):
         try:
@@ -172,6 +184,17 @@ class AgentOrchestrator:
     async def analyze_claim_pipeline(cls, task_id: str, claim: Claim, user_id: str = ""):
         """Classmethod bridge for background tasks"""
         orchestrator = cls()
+
+        # ── Winston AI Text Detection Gate ────────────────────────────────────────
+        detection_result = await detect_ai_text(claim.claim)
+        await cls.update_task_ai_detection(task_id, detection_result)
+        if detection_result.is_ai_generated:
+            logger.warning(
+                f"Winston AI: Claim flagged as AI-generated "
+                f"(human_score={detection_result.human_score:.1f})."
+            )
+        # ─────────────────────────────────────────────────────────────────────────
+
         await orchestrator._process_single_claim(task_id, claim, user_id)
 
     @classmethod
@@ -180,7 +203,20 @@ class AgentOrchestrator:
         orchestrator = cls()
         try:
             db = get_database()
-            
+
+            # ── Step 0: Winston AI Text Detection Gate ────────────────────────────────
+            # Run BEFORE any claim parsing so synthetic inputs are flagged immediately.
+            await cls.update_task_status(task_id, "Running AI content detection...")
+            detection_result = await detect_ai_text(text)
+            await cls.update_task_ai_detection(task_id, detection_result)
+            if detection_result.is_ai_generated:
+                logger.warning(
+                    f"Winston AI: Input flagged as AI-generated "
+                    f"(human_score={detection_result.human_score:.1f}). "
+                    "Proceeding with fact-check (detection is informational)."
+                )
+            # ─────────────────────────────────────────────────────────────────────────
+
             await cls.update_task_status(task_id, "Extracting claims...")
             claims = await orchestrator.parser.run(text)
             

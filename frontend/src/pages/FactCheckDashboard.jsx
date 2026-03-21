@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { startAnalysis, getAnalysisStatus } from '../api/factCheck';
 import ClaimCard from '../components/ClaimCard';
+import AiDetectionBanner from '../components/AiDetectionBanner';
 import { Search, AlertCircle, CheckCircle2, Loader2, Zap, Brain, Scale, FileText } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import './FactCheckDashboard.css';
@@ -203,6 +204,11 @@ const FactCheckDashboard = () => {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* AI Detection Banner — shown once detection data is available */}
+      {taskData?.ai_detection && (
+        <AiDetectionBanner detection={taskData.ai_detection} />
+      )}
 
       {/* Results */}
       {taskData?.claims && taskData.claims.length > 0 && (

@@ -46,12 +46,13 @@ const Sidebar = () => {
                     <span>Fact Check</span>
                 </NavLink>
 
-                <span className="nav-section-label">Coming Soon</span>
-                <div className="nav-item" style={{opacity: 0.45, cursor: 'default'}}>
+                <span className="nav-section-label">Tools</span>
+                <NavLink to="/ai-detection" className={({isActive}) => isActive ? "nav-item active" : "nav-item"}>
                     <Sparkles size={19} />
                     <span>AI Detection</span>
-                    <span className="coming-soon-tag">Soon</span>
-                </div>
+                </NavLink>
+
+                <span className="nav-section-label">Coming Soon</span>
                 <div className="nav-item" style={{opacity: 0.45, cursor: 'default'}}>
                     <ScanEye size={19} />
                     <span>Deepfake Detection</span>

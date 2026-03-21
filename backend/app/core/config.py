@@ -16,6 +16,7 @@ class Settings(BaseSettings):
     GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")
     FAST_API_PORT: int = int(os.getenv("FAST_API_PORT", 8000))
     SERPER_API_KEY: str = os.getenv("SERPER_API_KEY", "key-insert")
+    WINSTON_API_KEY: str = os.getenv("WINSTON_API_KEY", "")
 
     class Config:
         case_sensitive = True

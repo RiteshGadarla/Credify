@@ -1,0 +1,244 @@
+/* ============================================================
+   AI DETECTION BANNER — Winston AI Integration
+   Displays synthetic content detection results above the
+   fact-check results with a scored human vs. AI breakdown.
+   ============================================================ */
+
+.ai-detection-banner {
+  border-radius: var(--radius-md);
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.75rem;
+  border: 1.5px solid transparent;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition);
+}
+
+/* Accent band variants */
+.adb-human {
+  background: rgba(102, 187, 106, 0.06);
+  border-color: rgba(102, 187, 106, 0.28);
+}
+.adb-mixed {
+  background: rgba(255, 167, 38, 0.06);
+  border-color: rgba(255, 167, 38, 0.28);
+}
+.adb-ai {
+  background: rgba(239, 83, 80, 0.07);
+  border-color: rgba(239, 83, 80, 0.28);
+}
+
+/* Decorative left stripe */
+.adb-human::before,
+.adb-mixed::before,
+.adb-ai::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  border-radius: 4px 0 0 4px;
+}
+.adb-human::before { background: var(--success); }
+.adb-mixed::before { background: var(--warning); }
+.adb-ai::before    { background: var(--danger); }
+
+/* --- Header Row --- */
+.adb-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  margin-bottom: 1rem;
+}
+
+.adb-icon-wrap {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.adb-human .adb-icon-wrap { background: var(--success-light); color: var(--success); }
+.adb-mixed .adb-icon-wrap { background: var(--warning-light); color: var(--warning); }
+.adb-ai    .adb-icon-wrap { background: var(--danger-light);  color: var(--danger); }
+
+.adb-title-block {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.adb-title {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-tertiary);
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-bottom: 0.15rem;
+}
+
+.adb-zap {
+  color: var(--primary);
+}
+
+.adb-label {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* --- Score Chips --- */
+.adb-scores {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.adb-score-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1rem;
+  padding: 0.45rem 0.7rem;
+  border-radius: var(--radius);
+  border: 1px solid;
+  min-width: 58px;
+}
+
+.human-chip {
+  background: rgba(102, 187, 106, 0.08);
+  border-color: rgba(102, 187, 106, 0.25);
+  color: var(--success);
+}
+
+.ai-chip {
+  background: rgba(239, 83, 80, 0.07);
+  border-color: rgba(239, 83, 80, 0.22);
+  color: var(--danger);
+}
+
+.adb-score-chip svg {
+  opacity: 0.7;
+}
+
+.adb-score-num {
+  font-size: 1.05rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.adb-score-desc {
+  font-size: 0.62rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  opacity: 0.8;
+}
+
+/* --- Score Bar --- */
+.adb-bar-wrap {
+  margin-bottom: 0.75rem;
+}
+
+.adb-bar-track {
+  height: 7px;
+  background: rgba(239, 83, 80, 0.15);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  margin-bottom: 0.3rem;
+}
+
+.adb-bar-human {
+  height: 100%;
+  background: linear-gradient(90deg, var(--success), #a5d6a7);
+  border-radius: var(--radius-full);
+  transition: width 1s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.adb-bar-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.67rem;
+  font-weight: 600;
+  color: var(--text-tertiary);
+}
+
+.adb-bar-labels span {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+/* --- Sub-label --- */
+.adb-sublabel {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  margin: 0 0 0.75rem;
+  line-height: 1.55;
+}
+
+/* --- Attack Warning --- */
+.adb-attack-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: rgba(255, 167, 38, 0.1);
+  border: 1px solid rgba(255, 167, 38, 0.28);
+  border-radius: var(--radius);
+  padding: 0.45rem 0.75rem;
+  font-size: 0.8rem;
+  color: var(--warning);
+  font-weight: 500;
+  margin-bottom: 0.75rem;
+}
+
+/* --- Footer Meta --- */
+.adb-footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.25rem;
+}
+
+.adb-meta-chip {
+  background: var(--bg-sub);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-full);
+  padding: 0.18rem 0.6rem;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  letter-spacing: 0.02em;
+}
+
+.adb-powered {
+  color: var(--primary-dark);
+  background: var(--primary-ghost);
+  border-color: rgba(3, 169, 244, 0.15);
+}
+
+/* --- Responsive --- */
+@media (max-width: 640px) {
+  .adb-header {
+    flex-wrap: wrap;
+  }
+  .adb-scores {
+    width: 100%;
+    justify-content: flex-start;
+  }
+  .adb-score-chip {
+    flex-direction: row;
+    min-width: auto;
+    gap: 0.4rem;
+  }
+}

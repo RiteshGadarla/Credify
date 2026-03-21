@@ -19,3 +19,8 @@ export const getHistory = async () => {
     const response = await api.get('/api/history/');
     return response.data; // { metrics, history }
 };
+
+export const scanTextForAi = async (text) => {
+    const response = await api.post('/api/ai-detection/scan', { text });
+    return response.data; // WinstonDetectionResult
+};
