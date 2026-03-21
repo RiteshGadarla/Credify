@@ -1,12 +1,31 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Search, Sparkles, ScanEye, LogOut, User, ShieldCheck } from 'lucide-react';
+import { LayoutDashboard, Search, Sparkles, ScanEye, LogOut, User, ShieldCheck, Type } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import './Sidebar.css';
 
 const Sidebar = () => {
     const { user, logout } = useAuth();
     
+    const [isDyslexicMode, setIsDyslexicMode] = useState(() => {
+        return localStorage.getItem('dyslexicMode') === 'true';
+    });
+
+    useEffect(() => {
+        if (isDyslexicMode) {
+            document.body.classList.add('dyslexic-mode');
+            localStorage.setItem('dyslexicMode', 'true');
+        } else {
+            document.body.classList.remove('dyslexic-mode');
+            localStorage.setItem('dyslexicMode', 'false');
+        }
+
+        // Cleanup on unmount to ensure logic doesn't leak to login/signup pages
+        return () => {
+            document.body.classList.remove('dyslexic-mode');
+        };
+    }, [isDyslexicMode]);
+
     if (!user) return null;
 
     return (
@@ -37,6 +56,16 @@ const Sidebar = () => {
                     <ScanEye size={19} />
                     <span>Deepfake Detection</span>
                     <span className="coming-soon-tag">Soon</span>
+                </div>
+
+                <span className="nav-section-label">Preferences</span>
+                <div 
+                    className={`nav-item ${isDyslexicMode ? 'active' : ''}`} 
+                    onClick={() => setIsDyslexicMode(!isDyslexicMode)} 
+                    style={{cursor: 'pointer'}}
+                >
+                    <Type size={19} />
+                    <span>Dyslexia Friendly</span>
                 </div>
             </nav>
 

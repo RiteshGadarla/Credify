@@ -469,3 +469,43 @@ p {
   h1 { font-size: 1.6rem; }
   h2 { font-size: 1.3rem; }
 }
+
+/* ============================================================
+   Dyslexia Friendly Mode Additions
+   ============================================================ */
+
+/* --- OpenDyslexic Font Definitions --- */
+@font-face {
+  font-family: 'OpenDyslexic';
+  src: url('../fonts/OpenDyslexic-Regular.woff2') format('woff2'),
+       url('../fonts/OpenDyslexic-Regular.woff') format('woff'),
+       url('../fonts/OpenDyslexic-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'OpenDyslexic';
+  src: url('../fonts/OpenDyslexic-Bold.woff2') format('woff2'),
+       url('../fonts/OpenDyslexic-Bold.woff') format('woff');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'OpenDyslexic';
+  src: url('../fonts/OpenDyslexic-Bold-Italic.woff2') format('woff2'),
+       url('../fonts/OpenDyslexic-Bold-Italic.woff') format('woff');
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* --- Dyslexic Mode Styles --- */
+.dyslexic-mode,
+.dyslexic-mode * {
+  font-family: 'OpenDyslexic', sans-serif !important;
+  line-height: 1.6 !important;
+}
