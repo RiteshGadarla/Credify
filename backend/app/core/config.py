@@ -17,6 +17,7 @@ class Settings(BaseSettings):
     FAST_API_PORT: int = int(os.getenv("FAST_API_PORT", 8000))
     SERPER_API_KEY: str = os.getenv("SERPER_API_KEY", "key-insert")
     WINSTON_API_KEY: str = os.getenv("WINSTON_API_KEY", "")
+    REALITY_DEFENDER_API_KEY: str = os.getenv("REALITY_DEFENDER_API_KEY", "")
 
     class Config:
         case_sensitive = True

@@ -52,12 +52,10 @@ const Sidebar = () => {
                     <span>AI Detection</span>
                 </NavLink>
 
-                <span className="nav-section-label">Coming Soon</span>
-                <div className="nav-item" style={{opacity: 0.45, cursor: 'default'}}>
+                <NavLink to="/deepfake-detection" className={({isActive}) => isActive ? "nav-item active" : "nav-item"}>
                     <ScanEye size={19} />
                     <span>Deepfake Detection</span>
-                    <span className="coming-soon-tag">Soon</span>
-                </div>
+                </NavLink>
 
                 <span className="nav-section-label">Preferences</span>
                 <div 
