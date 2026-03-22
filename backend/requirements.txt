@@ -11,3 +11,11 @@ httpx
 google-auth
 requests
 pydantic[email]
+easyocr
+torch
+torchvision
+trafilatura
+newspaper3k
+lxml[html_clean]
+pillow
+python-multipart

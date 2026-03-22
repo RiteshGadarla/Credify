@@ -5,9 +5,25 @@ export const extractClaims = async (text) => {
     return response.data;
 };
 
-export const startAnalysis = async (text) => {
-    const response = await api.post('/api/fact-check/analyze', { text });
+export const startAnalysis = async (text, sourceType = 'text') => {
+    const response = await api.post('/api/fact-check/analyze', { text, source_type: sourceType });
     return response.data; // { task_id }
+};
+
+export const processUrl = async (url) => {
+    const response = await api.post('/api/process/process-url', { url });
+    return response.data;
+};
+
+export const processImage = async (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await api.post('/api/process/process-image', formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data'
+        }
+    });
+    return response.data;
 };
 
 export const getAnalysisStatus = async (taskId) => {
@@ -22,5 +38,5 @@ export const getHistory = async () => {
 
 export const scanTextForAi = async (text) => {
     const response = await api.post('/api/ai-detection/scan', { text });
-    return response.data; // WinstonDetectionResult
+    return response.data; // DetectionResult
 };

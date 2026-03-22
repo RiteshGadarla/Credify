@@ -13,16 +13,25 @@ class ClaimParserAgent(BaseAgent):
     Includes off-topic detection and injects current date for temporal context.
     """
 
-    async def run(self, text: str) -> List[Claim]:
+    async def run(self, text: str, source_type: str = "text") -> List[Claim]:
         """Extracts claims from raw text."""
         logger.info("ClaimParserAgent: Extracting claims from text.")
 
         # Inject current date for temporal context
         today = datetime.now(timezone.utc).strftime("%A, %B %d, %Y")
 
+        # Limit token usage for url
+        if source_type == "url":
+            text = text[:15000]
+
+        system_instruction = ""
+        if source_type == "image":
+            system_instruction = "SYSTEM NOTE: This text is extracted from a image using OCR. There may be typos. Please accommodate.\n"
+        elif source_type == "url":
+            system_instruction = "SYSTEM NOTE: This text is extracted from a WebPage. Extract only useful text and be concise in order to get a MAX of 5 most important fact checks.\n"
+
         prompt = f"""
         Today's date is: {today}
-        
         You are a claim extraction engine for a FACT-CHECKING system.
         
         STEP 1 — INPUT VALIDATION:
@@ -58,6 +67,7 @@ class ClaimParserAgent(BaseAgent):
             ]
         }}
         
+        {system_instruction}
         Text: {text}
         """
         raw_res = await generate_gemini_response(prompt, temperature=0.1)

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { GoogleLogin } from '@react-oauth/google';
-import { Mail, Lock, LogIn, AlertCircle, Loader2, ShieldCheck } from 'lucide-react';
+import { Mail, Lock, LogIn, AlertCircle, Loader2, ShieldCheck, ArrowLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const LoginPage = () => {
@@ -41,7 +41,40 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="flex-center" style={{ minHeight: '100vh', padding: '2rem', background: 'var(--bg-main)' }}>
+    <div className="flex-center" style={{ minHeight: '100vh', padding: '2rem', background: 'var(--bg-main)', position: 'relative' }}>
+      <Link 
+        to="/" 
+        className="flex-center hover-scale"
+        style={{ 
+          position: 'absolute', 
+          top: '1.5rem', 
+          left: '1.5rem', 
+          gap: '0.5rem',
+          color: 'var(--text-secondary)',
+          textDecoration: 'none',
+          fontWeight: 500,
+          fontSize: '0.9rem',
+          padding: '0.5rem 0.85rem',
+          borderRadius: 'var(--radius)',
+          transition: 'all 0.2s ease',
+          background: 'var(--bg-elevated)',
+          boxShadow: 'var(--shadow-sm)',
+          border: '1px solid var(--border-color)',
+          zIndex: 10
+        }}
+        onMouseOver={(e) => {
+          e.currentTarget.style.color = 'var(--text-primary)';
+          e.currentTarget.style.borderColor = 'var(--primary-light)';
+        }}
+        onMouseOut={(e) => {
+          e.currentTarget.style.color = 'var(--text-secondary)';
+          e.currentTarget.style.borderColor = 'var(--border-color)';
+        }}
+      >
+        <ArrowLeft size={16} />
+        Back to Home
+      </Link>
+
       <motion.div 
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}

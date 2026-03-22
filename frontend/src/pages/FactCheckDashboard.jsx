@@ -1,9 +1,9 @@
 import React, { useState, useMemo } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { startAnalysis, getAnalysisStatus } from '../api/factCheck';
+import { startAnalysis, getAnalysisStatus, processUrl, processImage } from '../api/factCheck';
 import ClaimCard from '../components/ClaimCard';
 import AiDetectionBanner from '../components/AiDetectionBanner';
-import { Search, AlertCircle, CheckCircle2, Loader2, Zap, Brain, Scale, FileText } from 'lucide-react';
+import { Search, AlertCircle, CheckCircle2, Loader2, Zap, Brain, Scale, FileText, Link2, ImageIcon, UploadCloud } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import './FactCheckDashboard.css';
 
@@ -39,11 +39,15 @@ const getPipelineState = (taskData) => {
 };
 
 const FactCheckDashboard = () => {
+  const [inputType, setInputType] = useState('text'); // "text", "url", "image"
   const [inputText, setInputText] = useState('');
+  const [inputUrl, setInputUrl] = useState('');
+  const [inputImage, setInputImage] = useState(null);
+  const [isExtracting, setIsExtracting] = useState(false);
   const [activeTaskId, setActiveTaskId] = useState(null);
 
   const startMutation = useMutation({
-    mutationFn: startAnalysis,
+    mutationFn: ({text, sourceType}) => startAnalysis(text, sourceType),
     onSuccess: (data) => {
       setActiveTaskId(data.task_id);
     }
@@ -67,14 +71,45 @@ const FactCheckDashboard = () => {
   const isFailed = taskData?.status?.startsWith('Failed');
   const pipelineStep = useMemo(() => getPipelineState(taskData), [taskData]);
 
-  const handleAnalyze = () => {
-    if (!inputText.trim()) return;
+  const handleAnalyze = async () => {
     setActiveTaskId(null);
-    startMutation.mutate(inputText);
+    if (inputType === 'text') {
+      if (!inputText.trim()) return;
+      startMutation.mutate({ text: inputText, sourceType: 'text' });
+    } else if (inputType === 'url') {
+      if (!inputUrl.trim()) return;
+      setIsExtracting(true);
+      try {
+        const res = await processUrl(inputUrl);
+        if (res.text) {
+          startMutation.mutate({ text: res.text, sourceType: 'url' });
+        }
+      } catch (err) {
+        console.error("URL processing failed:", err);
+        alert(err.response?.data?.detail || "Failed to extract content from the URL.");
+      } finally {
+        setIsExtracting(false);
+      }
+    } else if (inputType === 'image') {
+      if (!inputImage) return;
+      setIsExtracting(true);
+      try {
+        const res = await processImage(inputImage);
+        if (res.text) {
+          startMutation.mutate({ text: res.text, sourceType: 'image' });
+        }
+      } catch (err) {
+        console.error("Image processing failed:", err);
+        alert(err.response?.data?.detail || "Failed to extract text from the image.");
+      } finally {
+        setIsExtracting(false);
+      }
+    }
   };
 
   const handleKeyDown = (e) => {
-    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey || (inputType === 'url' && !e.shiftKey))) {
+      e.preventDefault();
       handleAnalyze();
     }
   };
@@ -99,22 +134,99 @@ const FactCheckDashboard = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1, duration: 0.3 }}
       >
-        <textarea
-          className="fc-textarea"
-          placeholder="Enter a claim, article excerpt, or statement to verify...&#10;&#10;Example: &quot;The Great Wall of China is visible from space with the naked eye.&quot;"
-          value={inputText}
-          onChange={(e) => setInputText(e.target.value)}
-          onKeyDown={handleKeyDown}
-          rows={5}
-        />
+        <div className="fc-tabs">
+          <button 
+            className={`fc-tab-btn ${inputType === 'text' ? 'active' : ''}`}
+            onClick={() => setInputType('text')}
+          >
+            <FileText size={16} /> Text
+          </button>
+          <button 
+            className={`fc-tab-btn ${inputType === 'url' ? 'active' : ''}`}
+            onClick={() => setInputType('url')}
+          >
+            <Link2 size={16} /> URL
+          </button>
+          <button 
+            className={`fc-tab-btn ${inputType === 'image' ? 'active' : ''}`}
+            onClick={() => setInputType('image')}
+          >
+            <ImageIcon size={16} /> Image
+          </button>
+        </div>
+
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={inputType}
+            initial={{ opacity: 0, y: 5 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -5 }}
+            transition={{ duration: 0.2 }}
+          >
+            {inputType === 'text' && (
+              <textarea
+                className="fc-textarea"
+                placeholder="Enter a claim, article excerpt, or statement to verify...&#10;&#10;Example: &quot;The Great Wall of China is visible from space with the naked eye.&quot;"
+                value={inputText}
+                onChange={(e) => setInputText(e.target.value)}
+                onKeyDown={handleKeyDown}
+                rows={5}
+              />
+            )}
+            
+            {inputType === 'url' && (
+              <div className="fc-url-wrapper">
+                <Link2 size={18} className="text-tertiary" style={{ color: 'var(--text-tertiary)' }} />
+                <input
+                  type="url"
+                  className="fc-url-input"
+                  placeholder="Paste article or web page URL here (e.g. https://example.com)"
+                  value={inputUrl}
+                  onChange={(e) => setInputUrl(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                />
+              </div>
+            )}
+
+            {inputType === 'image' && (
+              <div className={`fc-image-dropzone ${inputImage ? 'has-file' : ''}`}>
+                <input
+                  type="file"
+                  id="file-upload"
+                  accept="image/*"
+                  style={{ display: 'none' }}
+                  onChange={(e) => setInputImage(e.target.files[0])}
+                />
+                <label htmlFor="file-upload" style={{ width: '100%', height: '100%', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                  <div className="fc-image-dropzone-icon">
+                    <UploadCloud size={24} />
+                  </div>
+                  <div className="fc-image-text">
+                    {inputImage ? inputImage.name : "Click to upload or drag an image here"}
+                  </div>
+                  <div className="fc-image-subtext">
+                    {inputImage ? "Click to change file" : "Extracts text for fact-checking via OCR"}
+                  </div>
+                </label>
+              </div>
+            )}
+          </motion.div>
+        </AnimatePresence>
+
         <div className="fc-input-footer">
-          <span className="fc-char-count">{inputText.length} characters · Press ⌘+Enter to analyze</span>
+          <span className="fc-char-count">
+            {inputType === 'text' ? `${inputText.length} characters` : ''} 
+            {inputType === 'text' ? ' · Press ⌘+Enter to analyze' : ''}
+            {inputType === 'url' ? 'Press Enter to analyze URL' : ''}
+          </span>
           <button
             className="fc-analyze-btn"
             onClick={handleAnalyze}
-            disabled={startMutation.isPending || !inputText.trim() || isProcessing}
+            disabled={startMutation.isPending || isExtracting || isProcessing || (inputType === 'text' && !inputText.trim()) || (inputType === 'url' && !inputUrl.trim()) || (inputType === 'image' && !inputImage)}
           >
-            {startMutation.isPending ? (
+            {isExtracting ? (
+              <><Loader2 size={16} className="animate-spin" /> Extracting...</>
+            ) : startMutation.isPending ? (
               <><Loader2 size={16} className="animate-spin" /> Starting...</>
             ) : isProcessing ? (
               <><Loader2 size={16} className="animate-spin" /> Analyzing...</>
