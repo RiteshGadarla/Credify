@@ -53,7 +53,7 @@ const Sidebar = () => {
                 <span className="nav-section-label">Tools</span>
                 <NavLink to="/ai-detection" className={({isActive}) => isActive ? "nav-item active" : "nav-item"}>
                     <Sparkles size={19} />
-                    <span>AI Detection</span>
+                    <span>AI Content Detection</span>
                 </NavLink>
 
                 <span className="nav-section-label">Coming Soon</span>

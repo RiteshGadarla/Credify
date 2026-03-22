@@ -13,9 +13,6 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
-package-lock.json
-**/package-lock.json
-
 *.local
 
 # -------------------------

@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { getHistory } from '../api/factCheck';
+import { getHistory, generateReport } from '../api/factCheck';
 import api from '../api/axios';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Sparkles, Clock, X, AlertCircle, Link2, ImageIcon, FileText } from 'lucide-react';
+import { Search, Sparkles, Clock, X, AlertCircle, Link2, ImageIcon, FileText, Download } from 'lucide-react';
 import './HistoryPage.css';
 import ClaimCard from '../components/ClaimCard';
 import AiDetectionBanner from '../components/AiDetectionBanner';
@@ -32,7 +32,13 @@ const HistoryPage = () => {
     const isFactCheck = item.type === 'fact_check';
     const icon = isFactCheck ? <Search size={18} /> : <Sparkles size={18} />;
     const typeLabel = isFactCheck ? 'Fact Verification' : 'AI Detection';
-    const inputSnippet = (item.input_data || '').substring(0, 150) + ((item.input_data || '').length > 150 ? '...' : '');
+    
+    let previewText = item.input_data || '';
+    if (item.input_type === 'image' && item.extracted_text) {
+      previewText = item.extracted_text;
+    }
+    
+    const inputSnippet = previewText.substring(0, 150) + (previewText.length > 150 ? '...' : '');
     
     let resultText = '';
     let statusClass = 'neutral';
@@ -114,9 +120,18 @@ const HistoryPage = () => {
         >
           <div className="hp-modal-header">
             <h3>{isFactCheck ? 'Fact Verification Details' : 'AI Detection Details'}</h3>
-            <button className="hp-modal-close" onClick={handleClose}>
-              <X size={20} />
-            </button>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button 
+                className="fc-analyze-btn" 
+                style={{ padding: '6px 12px', fontSize: '13px', borderRadius: '6px' }}
+                onClick={() => generateReport(selectedItem.type, selectedItem)}
+              >
+                <Download size={14} /> Generate Report
+              </button>
+              <button className="hp-modal-close" onClick={handleClose}>
+                <X size={20} />
+              </button>
+            </div>
           </div>
           
           <div className="hp-modal-body">

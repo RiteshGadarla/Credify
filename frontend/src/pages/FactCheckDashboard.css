@@ -1,32 +1,106 @@
 /* ============================================================
-   FACT CHECK DASHBOARD — Verification Engine Interface
+   FACT CHECK DASHBOARD — Command Centre Interface
    ============================================================ */
 
-.fact-check-page {
+.fc-command-centre {
   padding: 2rem 2.5rem 3rem;
-  max-width: 960px;
+  max-width: 1020px;
   margin: 0 auto;
+  position: relative;
 }
 
-/* --- Page Header --- */
-.fc-header {
+/* --- Command Centre Header --- */
+.fc-cc-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   margin-bottom: 2rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--border-subtle);
 }
 
-.fc-header h1 {
-  font-size: 1.65rem;
+.fc-cc-header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.fc-cc-logo-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  box-shadow: var(--shadow-primary);
+  flex-shrink: 0;
+}
+
+.fc-cc-header h1 {
+  font-size: 1.4rem;
   font-weight: 700;
   letter-spacing: -0.02em;
-  margin-bottom: 0.3rem;
+  margin-bottom: 0.15rem;
+  line-height: 1.2;
 }
 
-.fc-header p {
-  font-size: 0.9rem;
+.fc-cc-header p {
+  font-size: 0.82rem;
   color: var(--text-tertiary);
   margin: 0;
+  font-weight: 400;
 }
 
-/* --- Input Section --- */
+/* Status indicator */
+.fc-cc-status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.9rem;
+  background: var(--bg-sub);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-full);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.fc-cc-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.fc-cc-status-dot.active {
+  background: var(--primary);
+  box-shadow: 0 0 8px var(--primary);
+  animation: statusPulse 1.5s ease-in-out infinite;
+}
+
+.fc-cc-status-dot.done {
+  background: var(--success);
+  box-shadow: 0 0 6px var(--success);
+}
+
+.fc-cc-status-dot.failed {
+  background: var(--danger);
+  box-shadow: 0 0 6px var(--danger);
+}
+
+.fc-cc-status-text {
+  color: var(--text-secondary);
+}
+
+@keyframes statusPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.3); }
+}
+
+/* --- Input Section (same original styling) --- */
 .fc-input-card {
   background: var(--bg-card);
   border: 1.5px solid var(--border-subtle);
@@ -170,6 +244,7 @@
   color: var(--text-tertiary);
 }
 
+/* --- Input Footer / Analyze Button --- */
 .fc-input-footer {
   display: flex;
   align-items: center;
@@ -213,6 +288,323 @@
   box-shadow: none;
 }
 
+/* ========================================
+   PROCESSING PHASE — Command Centre Widgets
+   ======================================== */
+
+/* --- Collapsed Input Summary Strip --- */
+.fc-input-summary {
+  margin-bottom: 1.25rem;
+}
+
+.fc-input-summary-inner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.65rem 1rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-xs);
+}
+
+.fc-input-summary-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.6rem;
+  background: var(--primary-ghost);
+  color: var(--primary-dark);
+  border-radius: var(--radius-full);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.fc-input-summary-text {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+/* --- Pipeline Grid (Command Centre Style) --- */
+.fc-pipeline-grid {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Subtle scan-line overlay for the "command centre" effect */
+.fc-pipeline-grid::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 3px,
+    rgba(79, 195, 247, 0.015) 3px,
+    rgba(79, 195, 247, 0.015) 4px
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+.fc-pipeline-grid-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+  position: relative;
+  z-index: 1;
+}
+
+.fc-pipeline-title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.fc-pipeline-title-row h3 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.fc-radar-icon {
+  color: var(--primary);
+  animation: radarSweep 2s ease-in-out infinite;
+}
+
+@keyframes radarSweep {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* Progress bar */
+.fc-pipeline-progress-container {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.fc-pipeline-progress-bar {
+  width: 120px;
+  height: 6px;
+  background: var(--bg-sub);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  border: 1px solid var(--border-subtle);
+}
+
+.fc-pipeline-progress-fill {
+  height: 100%;
+  border-radius: var(--radius-full);
+  background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+  box-shadow: 0 0 8px rgba(3, 169, 244, 0.4);
+}
+
+.fc-pipeline-progress-text {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+  font-variant-numeric: tabular-nums;
+  min-width: 32px;
+  text-align: right;
+}
+
+/* Pipeline steps grid — 2x2 on desktop, 1 column on mobile */
+.fc-pipeline-steps-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  position: relative;
+  z-index: 1;
+}
+
+.fc-pipeline-step-card {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 1rem 1.15rem;
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--border-subtle);
+  background: var(--bg-main);
+  transition: all 0.3s var(--ease);
+  position: relative;
+  overflow: hidden;
+}
+
+.fc-pipeline-step-card.active {
+  border-color: var(--primary);
+  background: var(--primary-ghost);
+  box-shadow: 0 0 0 3px var(--primary-glow), inset 0 1px 0 rgba(255,255,255,0.5);
+}
+
+.fc-pipeline-step-card.completed {
+  border-color: var(--success);
+  background: var(--success-light);
+}
+
+.fc-pipeline-step-card.waiting {
+  opacity: 0.55;
+}
+
+/* Step icon circle */
+.fc-step-icon-wrap {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all var(--transition);
+}
+
+.fc-step-icon-wrap.waiting {
+  background: var(--bg-sub);
+  border: 2px solid var(--border-color);
+  color: var(--text-tertiary);
+}
+
+.fc-step-icon-wrap.active {
+  background: rgba(79, 195, 247, 0.15);
+  border: 2px solid var(--primary);
+  color: var(--primary-dark);
+}
+
+.fc-step-icon-wrap.completed {
+  background: var(--success-light);
+  border: 2px solid var(--success);
+  color: var(--success);
+}
+
+.fc-step-info {
+  min-width: 0;
+}
+
+.fc-step-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.1rem;
+}
+
+.fc-step-label.waiting {
+  color: var(--text-tertiary);
+}
+
+.fc-step-label.active {
+  color: var(--primary-dark);
+}
+
+.fc-step-label.completed {
+  color: var(--success);
+}
+
+.fc-step-sublabel {
+  font-size: 0.72rem;
+  color: var(--text-tertiary);
+}
+
+/* Active step pulse ring */
+.fc-step-pulse-ring {
+  position: absolute;
+  top: 50%;
+  left: 28px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid var(--primary);
+  transform: translate(-50%, -50%);
+  animation: pulseRing 1.8s ease-out infinite;
+  pointer-events: none;
+}
+
+@keyframes pulseRing {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.6;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1.8);
+    opacity: 0;
+  }
+}
+
+/* ========================================
+   COMPLETION BANNER
+   ======================================== */
+.fc-completion-banner {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem;
+  border-radius: var(--radius-lg);
+  margin-bottom: 1.5rem;
+  border: 1.5px solid transparent;
+  box-shadow: var(--shadow-sm);
+}
+
+.fc-completion-banner.success {
+  background: linear-gradient(135deg, rgba(102, 187, 106, 0.08) 0%, rgba(102, 187, 106, 0.03) 100%);
+  border-color: var(--success);
+}
+
+.fc-completion-banner.failed {
+  background: linear-gradient(135deg, rgba(239, 83, 80, 0.08) 0%, rgba(239, 83, 80, 0.03) 100%);
+  border-color: var(--danger);
+}
+
+.fc-completion-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.fc-completion-banner.success .fc-completion-icon {
+  background: var(--success-light);
+  color: var(--success);
+}
+
+.fc-completion-banner.failed .fc-completion-icon {
+  background: var(--danger-light);
+  color: var(--danger);
+}
+
+.fc-completion-info h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0 0 0.15rem;
+}
+
+.fc-completion-info p {
+  font-size: 0.82rem;
+  color: var(--text-tertiary);
+  margin: 0;
+}
+
+.fc-completion-banner .badge {
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
 /* --- Error --- */
 .fc-error {
   display: flex;
@@ -228,144 +620,78 @@
   border: 1px solid rgba(239, 83, 80, 0.2);
 }
 
-/* --- Processing Pipeline --- */
-.fc-pipeline {
-  margin-bottom: 2rem;
-}
-
-.pipeline-status-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  padding: 1.25rem 1.5rem;
-  box-shadow: var(--shadow-xs);
-}
-
-.pipeline-header {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
-}
-
-.pipeline-spinner {
-  width: 20px;
-  height: 20px;
-  border: 2.5px solid var(--border-color);
-  border-top-color: var(--primary-dark);
-  border-radius: 50%;
-  animation: spin 0.7s linear infinite;
-  flex-shrink: 0;
-}
-
-.pipeline-done-icon {
-  color: var(--success);
-  flex-shrink: 0;
-}
-
-.pipeline-header h3 {
-  font-size: 0.95rem;
-  font-weight: 600;
-  margin: 0;
-}
-
-.pipeline-header .badge {
-  margin-left: auto;
-}
-
-/* Pipeline Steps */
-.pipeline-steps {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-}
-
-.pipeline-step {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
-  padding: 0.5rem 0;
-  position: relative;
-}
-
-.pipeline-step:not(:last-child)::after {
-  content: '';
-  position: absolute;
-  left: 11px;
-  top: 28px;
-  bottom: -2px;
-  width: 2px;
-  background: var(--border-subtle);
-}
-
-.pipeline-step.active:not(:last-child)::after {
-  background: var(--primary-light);
-}
-
-.pipeline-step.completed:not(:last-child)::after {
-  background: var(--success);
-}
-
-.step-dot {
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  font-size: 0.65rem;
-  transition: all var(--transition);
-}
-
-.step-dot.waiting {
-  background: var(--bg-sub);
-  border: 2px solid var(--border-color);
-}
-
-.step-dot.active {
-  background: var(--primary-ghost);
-  border: 2px solid var(--primary);
-  color: var(--primary-dark);
-}
-
-.step-dot.completed {
-  background: var(--success-light);
-  border: 2px solid var(--success);
-  color: var(--success);
-}
-
-.step-content {
-  padding-top: 2px;
-}
-
-.step-label {
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: var(--text-primary);
-}
-
-.step-label.waiting {
-  color: var(--text-tertiary);
-}
-
-.step-sublabel {
-  font-size: 0.72rem;
-  color: var(--text-tertiary);
-  margin-top: 1px;
-}
-
 /* --- Results Section --- */
 .fc-results {
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+/* ========================================
+   NEW ANALYSIS BUTTON
+   ======================================== */
+.fc-new-analysis-wrap {
+  display: flex;
+  justify-content: center;
+  padding: 1.5rem 0 1rem;
+}
+
+.fc-new-analysis-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.75rem 2rem;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  color: white;
+  font-weight: 700;
+  font-size: 0.95rem;
+  border: none;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  box-shadow: var(--shadow-primary);
+  transition: all var(--transition);
+  letter-spacing: 0.01em;
+  position: relative;
+  overflow: hidden;
+}
+
+.fc-new-analysis-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(rgba(255,255,255,0.18), transparent);
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.fc-new-analysis-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(3, 169, 244, 0.4);
+}
+
+.fc-new-analysis-btn:hover::before {
+  opacity: 1;
+}
+
+.fc-new-analysis-btn:active {
+  transform: translateY(0);
 }
 
 /* --- Responsive --- */
 @media (max-width: 768px) {
-  .fact-check-page {
+  .fc-command-centre {
     padding: 1.5rem 1rem 2rem;
+  }
+
+  .fc-cc-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .fc-pipeline-steps-grid {
+    grid-template-columns: 1fr;
   }
 
   .fc-input-footer {
@@ -380,5 +706,14 @@
 
   .fc-analyze-btn {
     justify-content: center;
+  }
+
+  .fc-completion-banner {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .fc-completion-banner .badge {
+    margin-left: 0;
   }
 }

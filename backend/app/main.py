@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import auth, deps, fact_check, history, ai_detection, process_text
+from app.routers import auth, deps, fact_check, history, ai_detection, process_text, report
 from app.utils.mongo import connect_to_mongo, close_mongo_connection
 from app.core.config import settings
 from app.utils.logger import logger
@@ -10,10 +10,11 @@ import os
 app = FastAPI(title=settings.PROJECT_NAME)
 
 # CORS
-origins = [
-    "http://localhost:5173", # Vite
-    "http://localhost:3000",
-]
+# origins = [
+#     "http://localhost:4173",
+#     "http://localhost:5173",
+#     "http://localhost:3000",
+# ]
 
 uploads_path = os.path.join(os.path.dirname(__file__), "uploads")
 os.makedirs(uploads_path, exist_ok=True)
@@ -21,7 +22,7 @@ app.mount("/api/uploads", StaticFiles(directory=uploads_path), name="uploads")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -43,6 +44,7 @@ app.include_router(fact_check.router, prefix="/api/fact-check", tags=["fact_chec
 app.include_router(history.router, prefix="/api/history", tags=["history"])
 app.include_router(ai_detection.router, prefix="/api/ai-detection", tags=["ai_detection"])
 app.include_router(process_text.router, prefix="/api/process", tags=["process"])
+app.include_router(report.router, prefix="/api/report", tags=["report"])
 
 # Protected route example 
 @app.get("/me")

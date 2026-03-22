@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronDown, ChevronUp, CheckCircle2, XCircle, HelpCircle, Loader2, Scale, MessageSquare, Sparkles, ExternalLink, ShieldCheck, ShieldAlert, ShieldQuestion } from 'lucide-react';
+import { ChevronDown, ChevronUp, CheckCircle2, XCircle, HelpCircle, Loader2, Scale, Sparkles, ExternalLink, ShieldCheck, ShieldAlert, ShieldQuestion } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import './ClaimCard.css';
 
@@ -101,38 +101,7 @@ const ClaimCard = ({ claimData, index = 0 }) => {
                                         </div>
                                     </div>
                                 )}
-                                
-                                {/* Proponent vs Opponent */}
-                                <div className="detail-section">
-                                    <div className="detail-section-header">
-                                        <MessageSquare size={15} className="section-icon" />
-                                        <h5>Debate Analysis</h5>
-                                    </div>
-                                    <div className="agents-split">
-                                        <div className="agent-col proponent">
-                                            <h5>
-                                                <CheckCircle2 size={13} />
-                                                Supporting Arguments
-                                            </h5>
-                                            <ul>
-                                                {claimData.proponent?.arguments?.map((arg, i) => (
-                                                    <li key={i}>{arg}</li>
-                                                ))}
-                                            </ul>
-                                        </div>
-                                        <div className="agent-col opponent">
-                                            <h5>
-                                                <XCircle size={13} />
-                                                Challenging Arguments
-                                            </h5>
-                                            <ul>
-                                                {claimData.opponent?.arguments?.map((arg, i) => (
-                                                    <li key={i}>{arg}</li>
-                                                ))}
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
+
 
                                 {/* Evidence */}
                                 <div className="evidence-section">

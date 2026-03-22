@@ -20,3 +20,5 @@ lxml[html_clean]
 pillow
 python-multipart
 aiofiles
+reportlab
+svglib

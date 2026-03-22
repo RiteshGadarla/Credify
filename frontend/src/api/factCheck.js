@@ -44,3 +44,26 @@ export const scanTextForAi = async (text) => {
     const response = await api.post('/api/ai-detection/scan', { text });
     return response.data; // DetectionResult
 };
+
+export const generateReport = async (reportType, data) => {
+    const response = await api.post('/api/report/generate', { report_type: reportType, data }, { responseType: 'blob' });
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    
+    // Extract filename from Content-Disposition if present
+    let filename = `credify_report.pdf`;
+    const disposition = response.headers['content-disposition'];
+    if (disposition && disposition.indexOf('attachment') !== -1) {
+        const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+        const matches = filenameRegex.exec(disposition);
+        if (matches != null && matches[1]) {
+            filename = matches[1].replace(/['"]/g, '');
+        }
+    }
+    
+    link.setAttribute('download', filename);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+};
