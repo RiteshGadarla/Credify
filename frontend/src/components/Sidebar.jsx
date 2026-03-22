@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Search, Sparkles, ScanEye, LogOut, User, ShieldCheck, Type } from 'lucide-react';
+import { LayoutDashboard, Search, Sparkles, ScanEye, LogOut, User, ShieldCheck, Type, History } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import './Sidebar.css';
 
@@ -44,6 +44,10 @@ const Sidebar = () => {
                 <NavLink to="/fact-check" className={({isActive}) => isActive ? "nav-item active" : "nav-item"}>
                     <Search size={19} />
                     <span>Fact Check</span>
+                </NavLink>
+                <NavLink to="/history" className={({isActive}) => isActive ? "nav-item active" : "nav-item"}>
+                    <History size={19} />
+                    <span>History</span>
                 </NavLink>
 
                 <span className="nav-section-label">Tools</span>

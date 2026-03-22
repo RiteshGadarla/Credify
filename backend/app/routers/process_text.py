@@ -5,6 +5,9 @@ import logging
 import io
 
 from app.services.input_processor import extract_text_from_image, extract_content_from_url
+import uuid
+import os
+import aiofiles
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -17,6 +20,7 @@ class URLProcessRequest(BaseModel):
 
 class ProcessedResponse(BaseModel):
     text: str
+    original_input: Optional[str] = None
     title: Optional[str] = None
     images: Optional[List[str]] = None
 
@@ -45,7 +49,16 @@ async def process_image_endpoint(file: UploadFile = File(...)):
         if not extracted_text.strip():
             raise HTTPException(status_code=422, detail="No text detected in the image")
             
-        return ProcessedResponse(text=extracted_text)
+        # Save image locally
+        upload_dir = os.path.join(os.path.dirname(__file__), "..", "uploads")
+        os.makedirs(upload_dir, exist_ok=True)
+        file_name = f"{uuid.uuid4()}_{file.filename}"
+        file_path = os.path.join(upload_dir, file_name)
+        
+        async with aiofiles.open(file_path, 'wb') as out_file:
+            await out_file.write(contents)
+            
+        return ProcessedResponse(text=extracted_text, original_input=file_name)
     except HTTPException:
         raise
     except Exception as e:
@@ -65,6 +78,7 @@ async def process_url_endpoint(request: URLProcessRequest):
             
         return ProcessedResponse(
             text=result.get("text", ""),
+            original_input=request.url,
             title=result.get("title", ""),
             images=result.get("images", [])
         )

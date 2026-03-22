@@ -34,7 +34,7 @@ class AgentOrchestrator:
         self.summarizer = SummaryAgent()
 
     @classmethod
-    async def create_task(cls, text: str, source_type: str = "text", user_id: str = "") -> str:
+    async def create_task(cls, text: str, source_type: str = "text", original_input: str = None, user_id: str = "") -> str:
         logger.info("AgentOrchestrator: Creating new task...")
         db = get_database()
         task_id = str(uuid.uuid4())
@@ -42,6 +42,7 @@ class AgentOrchestrator:
             "task_id": task_id,
             "text": text,
             "source_type": source_type,
+            "original_input": original_input,
             "status": "Initializing...",
             "claims": [],
             "user_id": user_id,
@@ -162,21 +163,7 @@ class AgentOrchestrator:
             
             # Update DB
             await self.update_claim(task_id, claim.claim, final_claim_update)
-            
-            # Save to history (user-scoped)
-            history_record = {
-                "task_id": task_id,
-                "user_id": user_id,
-                "claim": claim.claim,
-                "verdict": final_output.verdict,
-                "confidence": final_output.confidence,
-                "summary": summary_output.summary,
-                "key_points": summary_output.key_points,
-                "sources": key_evidence_dicts,
-                "timestamp": datetime.datetime.utcnow().isoformat()
-            }
-            await db["history"].insert_one(history_record)
-            
+
         except Exception as e:
             logger.error(f"Error processing claim {claim.claim}: {e}")
             await self.update_claim(task_id, claim.claim, {"status": f"Failed: {str(e)}"})
@@ -199,7 +186,7 @@ class AgentOrchestrator:
         await orchestrator._process_single_claim(task_id, claim, user_id)
 
     @classmethod
-    async def run_full_analysis(cls, task_id: str, text: str, source_type: str = "text", user_id: str = ""):
+    async def run_full_analysis(cls, task_id: str, text: str, source_type: str = "text", original_input: str = None, user_id: str = ""):
         logger.info(f"AgentOrchestrator: Kicking off full analysis for task: {task_id}")
         orchestrator = cls()
         try:
@@ -253,6 +240,35 @@ class AgentOrchestrator:
 
             await cls.update_task_status(task_id, "Completed")
             
+            if user_id:
+                task_doc = await cls.get_task(task_id)
+                history_record = {
+                    "task_id": task_id,
+                    "user_id": user_id,
+                    "type": "fact_check",
+                    "input_type": source_type,
+                    "input_data": original_input if original_input else text,
+                    "extracted_text": text if source_type in ["url", "image"] else None,
+                    "status": "Completed",
+                    "claims": task_doc.get("claims", []),
+                    "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat()
+                }
+                await db["history"].insert_one(history_record)
+            
         except Exception as e:
             logger.error(f"Full analysis failed: {e}")
             await cls.update_task_status(task_id, f"Failed: {str(e)}")
+            
+            if user_id:
+                history_record = {
+                    "task_id": task_id,
+                    "user_id": user_id,
+                    "type": "fact_check",
+                    "input_type": source_type,
+                    "input_data": original_input if original_input else text,
+                    "extracted_text": text if source_type in ["url", "image"] else None,
+                    "status": f"Failed: {str(e)}",
+                    "claims": [],
+                    "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat()
+                }
+                await db["history"].insert_one(history_record)

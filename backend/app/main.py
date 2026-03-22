@@ -4,6 +4,8 @@ from app.routers import auth, deps, fact_check, history, ai_detection, process_t
 from app.utils.mongo import connect_to_mongo, close_mongo_connection
 from app.core.config import settings
 from app.utils.logger import logger
+from fastapi.staticfiles import StaticFiles
+import os
 
 app = FastAPI(title=settings.PROJECT_NAME)
 
@@ -12,6 +14,10 @@ origins = [
     "http://localhost:5173", # Vite
     "http://localhost:3000",
 ]
+
+uploads_path = os.path.join(os.path.dirname(__file__), "uploads")
+os.makedirs(uploads_path, exist_ok=True)
+app.mount("/api/uploads", StaticFiles(directory=uploads_path), name="uploads")
 
 app.add_middleware(
     CORSMiddleware,

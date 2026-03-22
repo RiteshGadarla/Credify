@@ -73,3 +73,5 @@ htmlcov/
 *.pid
 *.seed
 *.out
+
+backend/app/uploads/

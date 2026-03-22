@@ -9,6 +9,7 @@ import SignupPage from './pages/SignupPage';
 import DashboardPage from './pages/DashboardPage';
 import FactCheckDashboard from './pages/FactCheckDashboard';
 import AiDetectionPage from './pages/AiDetectionPage';
+import HistoryPage from './pages/HistoryPage';
 import './styles/index.css';
 
 const LoadingScreen = () => (
@@ -50,6 +51,7 @@ const AppRoutes = () => {
               <Route path="/dashboard" element={<DashboardPage />} />
               <Route path="/fact-check" element={<FactCheckDashboard />} />
               <Route path="/ai-detection" element={<AiDetectionPage />} />
+              <Route path="/history" element={<HistoryPage />} />
               <Route path="*" element={<Navigate to="/dashboard" />} />
             </>
           )}

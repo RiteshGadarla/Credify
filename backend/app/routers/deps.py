@@ -28,3 +28,18 @@ async def get_current_user(
     # Convert _id to id
     user["id"] = str(user.pop("_id"))
     return user
+
+async def get_current_user_optional(
+    token: str = Depends(OAuth2PasswordBearer(tokenUrl="/auth/login", auto_error=False))
+):
+    if not token:
+        return None
+    email = verify_access_token(token)
+    if not email:
+        return None
+    db = get_database()
+    user = await db["users"].find_one({"email": email})
+    if not user:
+        return None
+    user["id"] = str(user.pop("_id"))
+    return user

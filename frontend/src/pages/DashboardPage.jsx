@@ -1,7 +1,7 @@
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Navigate, Link } from 'react-router-dom';
-import { TrendingUp, Shield, AlertTriangle, Target, History, ArrowRight, Search, Clock, ChevronRight } from 'lucide-react';
+import { TrendingUp, Shield, AlertTriangle, Target, History, ArrowRight, Search, Clock, ChevronRight, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import { getHistory } from '../api/factCheck';
@@ -117,6 +117,14 @@ const DashboardPage = () => {
   const hour = new Date().getHours();
   const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
 
+  const getIstDate = (ts) => {
+    let dateStr = ts;
+    if (!dateStr.endsWith('Z') && !dateStr.includes('+')) {
+      dateStr += 'Z';
+    }
+    return new Date(dateStr).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
+  };
+
   return (
     <div className="dashboard-page">
       {/* Header */}
@@ -190,32 +198,53 @@ const DashboardPage = () => {
             </div>
           ) : (
             <div className="history-list">
-              {historyList.slice(0, 8).map((item, idx) => {
-                const vs = getVerdictStyle(item.verdict);
+              {historyList.slice(0, 4).map((item, idx) => {
+                const isFactCheck = item.type === 'fact_check';
+                const icon = isFactCheck ? <Search size={14} /> : <Sparkles size={14} />;
+                const typeLabel = isFactCheck ? 'Fact Verification' : 'AI Detection';
+                const inputSnippet = (item.input_data || '').substring(0, 80) + ((item.input_data || '').length > 80 ? '...' : '');
+                
+                let resultText = '';
+                if (isFactCheck) {
+                  const claimsCount = (item.claims || []).length;
+                  resultText = item.status?.startsWith('Failed') ? 'Failed' : `${claimsCount} claim${claimsCount !== 1 ? 's' : ''}`;
+                } else if (item.ai_result) {
+                  resultText = `${item.ai_result.human_score?.toFixed(0)}% Human`;
+                }
+
                 return (
                   <motion.div
                     key={item._id}
-                    className="history-item"
+                    className="history-item compact"
                     initial={{ opacity: 0, x: -8 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.3 + idx * 0.04 }}
+                    style={{ padding: '0.75rem', display: 'flex', gap: '0.75rem', alignItems: 'center' }}
                   >
-                    <div className="history-item-top">
-                      <h5 className="history-claim">{item.claim}</h5>
-                      <span className="badge" style={{ background: vs.bg, color: vs.color }}>
-                        {vs.label}
-                      </span>
+                    <div style={{ background: 'var(--bg-main)', padding: '0.5rem', borderRadius: '8px', color: 'var(--primary)' }}>
+                      {icon}
                     </div>
-                    <p className="history-summary">
-                      {item.summary ? item.summary.substring(0, 120) + '...' : 'No summary available.'}
-                    </p>
-                    <div className="history-meta">
-                      <Clock size={12} />
-                      <span>{new Date(item.timestamp).toLocaleString()}</span>
+                    <div style={{ flex: 1, overflow: 'hidden' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.25rem' }}>
+                        <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{typeLabel}</span>
+                        <div className="history-meta" style={{ marginTop: 0 }}>
+                          <Clock size={10} />
+                          <span style={{ fontSize: '0.7rem' }}>{getIstDate(item.timestamp)}</span>
+                        </div>
+                      </div>
+                      <h5 className="history-claim" style={{ fontSize: '0.875rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginBottom: '0.25rem' }}>
+                        {inputSnippet || 'No input data'}
+                      </h5>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                        Result: <strong style={{ color: 'var(--text-main)' }}>{resultText}</strong>
+                      </div>
                     </div>
                   </motion.div>
                 );
               })}
+              <Link to="/history" className="btn btn-neutral" style={{ width: '100%', marginTop: '0.5rem' }}>
+                View Full History
+              </Link>
             </div>
           )}
         </motion.section>

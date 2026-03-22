@@ -47,7 +47,7 @@ const FactCheckDashboard = () => {
   const [activeTaskId, setActiveTaskId] = useState(null);
 
   const startMutation = useMutation({
-    mutationFn: ({text, sourceType}) => startAnalysis(text, sourceType),
+    mutationFn: ({text, sourceType, originalInput}) => startAnalysis(text, sourceType, originalInput),
     onSuccess: (data) => {
       setActiveTaskId(data.task_id);
     }
@@ -82,7 +82,7 @@ const FactCheckDashboard = () => {
       try {
         const res = await processUrl(inputUrl);
         if (res.text) {
-          startMutation.mutate({ text: res.text, sourceType: 'url' });
+          startMutation.mutate({ text: res.text, sourceType: 'url', originalInput: res.original_input });
         }
       } catch (err) {
         console.error("URL processing failed:", err);
@@ -96,7 +96,7 @@ const FactCheckDashboard = () => {
       try {
         const res = await processImage(inputImage);
         if (res.text) {
-          startMutation.mutate({ text: res.text, sourceType: 'image' });
+          startMutation.mutate({ text: res.text, sourceType: 'image', originalInput: res.original_input });
         }
       } catch (err) {
         console.error("Image processing failed:", err);

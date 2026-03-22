@@ -5,8 +5,12 @@ export const extractClaims = async (text) => {
     return response.data;
 };
 
-export const startAnalysis = async (text, sourceType = 'text') => {
-    const response = await api.post('/api/fact-check/analyze', { text, source_type: sourceType });
+export const startAnalysis = async (text, sourceType = 'text', originalInput = null) => {
+    const payload = { text, source_type: sourceType };
+    if (originalInput) {
+        payload.original_input = originalInput;
+    }
+    const response = await api.post('/api/fact-check/analyze', payload);
     return response.data; // { task_id }
 };
 
