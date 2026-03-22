@@ -1,7 +1,7 @@
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Navigate, Link } from 'react-router-dom';
-import { TrendingUp, Shield, AlertTriangle, Target, History, ArrowRight, Search, Clock, ChevronRight, Sparkles } from 'lucide-react';
+import { TrendingUp, Shield, AlertTriangle, Target, History, ArrowRight, Search, Clock, ChevronRight, Sparkles, ScanEye } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import { getHistory } from '../api/factCheck';
@@ -200,8 +200,9 @@ const DashboardPage = () => {
             <div className="history-list">
               {historyList.slice(0, 4).map((item, idx) => {
                 const isFactCheck = item.type === 'fact_check';
-                const icon = isFactCheck ? <Search size={14} /> : <Sparkles size={14} />;
-                const typeLabel = isFactCheck ? 'Fact Verification' : 'AI Detection';
+                const isDeepfake = item.type === 'deepfake';
+                const icon = isFactCheck ? <Search size={14} /> : isDeepfake ? <ScanEye size={14} /> : <Sparkles size={14} />;
+                const typeLabel = isFactCheck ? 'Fact Verification' : isDeepfake ? 'Deepfake Analysis' : 'AI Detection';
                 const inputSnippet = (item.input_data || '').substring(0, 80) + ((item.input_data || '').length > 80 ? '...' : '');
                 
                 let resultText = '';
@@ -210,6 +211,8 @@ const DashboardPage = () => {
                   resultText = item.status?.startsWith('Failed') ? 'Failed' : `${claimsCount} claim${claimsCount !== 1 ? 's' : ''}`;
                 } else if (item.ai_result) {
                   resultText = `${item.ai_result.human_score?.toFixed(0)}% Human`;
+                } else if (item.type === 'deepfake' && item.deepfake_result) {
+                  resultText = item.deepfake_result.status;
                 }
 
                 return (

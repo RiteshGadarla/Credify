@@ -1,5 +1,14 @@
 # Credify – Fact & Claim Verification System
 
+## ✨ Key Features
+
+- **Multi-Modal Input:** Verify claims via text, URLs, or image uploads.
+- **Agentic Fact-Checking:** A sophisticated multi-agent system orchestrating claim parsing, evidence retrieval, credibility scoring, and verification.
+- **Deepfake Media Detection:** Scan images to detect AI-generated or manipulated media.
+- **Comprehensive PDF Reports:** Generate and download detailed, professional PDF reports of analysis results.
+- **Scan History:** Track and manage past fact-check and deepfake scan results easily from the dashboard.
+- **Accessibility:** Built-in Dyslexia-Friendly Mode for improved readability.
+
 ## 🚀 Quick Start
 
 Follow these steps to get the project up and running.
@@ -46,6 +55,8 @@ GOOGLE_CLIENT_SECRET=your_google_client_secret
 ACCESS_TOKEN_EXPIRE_MINUTES=43200
 GEMINI_API_KEY=your_gemini_api_key
 SERPER_API_KEY=your_serper_api_key
+WINSTON_API_KEY=your_winston_api_key
+REALITY_DEFENDER_API_KEY=your_reality_defender_api_key
 ```
 
 #### 🌐 Frontend (`frontend/.env`)
@@ -57,6 +68,13 @@ VITE_API_BASE_URL=http://localhost:8000
 VITE_GOOGLE_CLIENT_ID=your_google_client_id
 VITE_APP_NAME=Credify
 ```
+
+#### 🔑 External API Keys Use Cases
+
+- **`GEMINI_API_KEY`**: Powers the core LLM agents responsible for claim parsing, credibility scoring, fact verification, and summarizing complex outputs.
+- **`SERPER_API_KEY`**: Powers the Evidence Retrieval Agent allowing it to perform real-time Google search queries to gather external evidence.
+- **`WINSTON_API_KEY`**: Utilized by the AI Detection Engine to scan given text and identify if it is AI-generated (e.g. ChatGPT, Claude, etc).
+- **`REALITY_DEFENDER_API_KEY`**: Utilized by the Deepfake Detection Engine to scan images and videos for signs of AI-manipulation or deepfakes.
 
 ---
 
@@ -102,12 +120,12 @@ The backend includes a dedicated `run.py` script for advanced management:
   - `services/`: Business logic layer separating logic from transport.
   - `models/`: Centralized Pydantic data models and Database schemas.
   - `agents/`: AI agents dedicated to processing claims and summarization.
-  - `tools/`: Reusable tools (e.g. Real-Time Search) used by the agents.
+  - `tools/`: Reusable tools (e.g. Real-Time Search, PDF Generator) used by the agents.
   - `utils/`: High-performance utility modules (Logger, Auth, Gemini, Mongo).
 - **Async Database Driver:** Uses `motor` for high-performance MongoDB interactions.
 - **Security:** JWT Authentication with `python-jose` and `passlib` (bcrypt).
 - **Multi-Agent System:** Advanced AI pipeline orchestrating Gemini models and Real-Time external Search APIs (Serper) to perform verifiable fact-checking, complete with token streaming.
-
+- **Deepfake Detection Engine:** Dedicated endpoints and processing for analyzing media for manipulation.
 
 #### Frontend (React + Vite)
 
@@ -126,9 +144,8 @@ Credify's core is powered by an orchestrator-driven multi-agent system that para
 2. **Evidence Retrieval Agent**: Interfaces with external search tools (e.g. Serper API) to gather real-world news and raw data related to the claims.
 3. **Credibility Scoring Agent**: Evaluates the retrieved search results for reliability and factual consistency, ranking the best sources.
 4. **Verification Agent**: Analyzes the claims specifically against the high-scored evidence to formulate an initial verdict and calculate a confidence score.
-5. **Debate Agent** *(Optional)*: Engages dynamically if the system detects a `CONFLICT` or computes a low-confidence score. It synthesizes multiple perspectives to act as a logic tie-breaker.
-6. **Response Agent**: Aggregates the gathered evidence and verification contexts to establish the final verifiable conclusion and reasoning.
-7. **Summary Agent**: Condenses the extensive technical analysis into an easily digestible, user-friendly summary.
+5. **Response Agent**: Aggregates the gathered evidence and verification contexts to establish the final verifiable conclusion and reasoning.
+6. **Summary Agent**: Condenses the extensive technical analysis into an easily digestible, user-friendly summary.
 
 These agents are seamlessly managed by an orchestrator which safely runs parallel execution, resolving race conditions with atomic database updates, and synchronously streaming updates to the dashboard UI.
 
@@ -137,9 +154,8 @@ These agents are seamlessly managed by an orchestrator which safely runs paralle
 ## 🛠️ Tech Stack
 
 - **Frontend:** React, Vite, Axios, Framer Motion, Lucide Icons
-- **Backend:** FastAPI, Uvicorn, Motor (MongoDB), Pydantic, Agentic Flow, Serper API
+- **Backend:** FastAPI, Uvicorn, Motor (MongoDB), Pydantic, Agentic Flow, Serper API, ReportLab (PDF Generation)
 - **Auth:** JWT, Google OAuth 2.0
 - **Database:** MongoDB
-
 
 Developed with ❤️ by Tristar.

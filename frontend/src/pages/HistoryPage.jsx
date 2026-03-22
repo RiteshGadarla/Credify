@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { getHistory, generateReport } from '../api/factCheck';
 import api from '../api/axios';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Sparkles, Clock, X, AlertCircle, Link2, ImageIcon, FileText, Download } from 'lucide-react';
+import { Search, Sparkles, Clock, X, AlertCircle, Link2, ImageIcon, FileText, Download, ScanEye } from 'lucide-react';
 import './HistoryPage.css';
 import ClaimCard from '../components/ClaimCard';
 import AiDetectionBanner from '../components/AiDetectionBanner';
@@ -30,8 +30,9 @@ const HistoryPage = () => {
 
   const renderItemPreview = (item, idx) => {
     const isFactCheck = item.type === 'fact_check';
-    const icon = isFactCheck ? <Search size={18} /> : <Sparkles size={18} />;
-    const typeLabel = isFactCheck ? 'Fact Verification' : 'AI Detection';
+    const isDeepfake = item.type === 'deepfake';
+    const icon = isFactCheck ? <Search size={18} /> : isDeepfake ? <ScanEye size={18} /> : <Sparkles size={18} />;
+    const typeLabel = isFactCheck ? 'Fact Verification' : isDeepfake ? 'Deepfake Analysis' : 'AI Detection';
     
     let previewText = item.input_data || '';
     if (item.input_type === 'image' && item.extracted_text) {
@@ -56,6 +57,10 @@ const HistoryPage = () => {
       const score = item.ai_result.human_score || 0;
       resultText = `${score.toFixed(0)}% Human`;
       statusClass = score >= 80 ? 'success' : score >= 50 ? 'warning' : 'danger';
+    } else if (item.type === 'deepfake' && item.deepfake_result) {
+      const status = item.deepfake_result.status;
+      resultText = status;
+      statusClass = status === 'AUTHENTIC' ? 'success' : status === 'FAKE' ? 'danger' : 'warning';
     }
 
     const inputIcon = item.input_type === 'image' ? <ImageIcon size={14} /> : 
@@ -101,6 +106,7 @@ const HistoryPage = () => {
   const renderDetails = () => {
     if (!selectedItem) return null;
     const isFactCheck = selectedItem.type === 'fact_check';
+    const isDeepfake = selectedItem.type === 'deepfake';
 
     return (
       <motion.div 
@@ -119,7 +125,7 @@ const HistoryPage = () => {
           onClick={(e) => e.stopPropagation()}
         >
           <div className="hp-modal-header">
-            <h3>{isFactCheck ? 'Fact Verification Details' : 'AI Detection Details'}</h3>
+            <h3>{isFactCheck ? 'Fact Verification Details' : isDeepfake ? 'Deepfake Analysis Details' : 'AI Detection Details'}</h3>
             <div style={{ display: 'flex', gap: '8px' }}>
               <button 
                 className="fc-analyze-btn" 
@@ -174,6 +180,18 @@ const HistoryPage = () => {
                 <h4>AI Scanning Results</h4>
                 <div style={{ marginTop: '1rem' }}>
                     <AiDetectionBanner detection={selectedItem.ai_result} />
+                </div>
+              </div>
+            )}
+
+            {/* Deepfake Result */}
+            {selectedItem.type === 'deepfake' && selectedItem.deepfake_result && (
+              <div className="hp-detail-section">
+                <h4>Analysis Results</h4>
+                <div className="hp-text-box mt-3">
+                  <p><strong>Status:</strong> {selectedItem.deepfake_result.status}</p>
+                  <p><strong>Score:</strong> {selectedItem.deepfake_result.final_score?.toFixed(1)} / 100</p>
+                  <p><strong>Media Type:</strong> {selectedItem.deepfake_result.media_type}</p>
                 </div>
               </div>
             )}

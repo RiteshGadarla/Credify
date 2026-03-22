@@ -298,7 +298,13 @@ def _build_title_block(elements, styles, report_data):
     """Build the branded title block at the top of page 1."""
     # Dark header background as a table with dark bg
     report_type = report_data.get('report_type', 'fact_check')
-    type_label = 'Fact-Check Analysis Report' if report_type == 'fact_check' else 'AI Content Detection Report'
+    
+    if report_type == 'fact_check':
+        type_label = 'Fact-Check Analysis Report'
+    elif report_type == 'deepfake':
+        type_label = 'Deepfake Media Analysis Report'
+    else:
+        type_label = 'AI Content Detection Report'
 
     # Build logo + title row
     logo_cell = ''
@@ -363,8 +369,60 @@ def _build_executive_summary(elements, styles, report_data):
 
     if report_type == 'ai_detection':
         _build_ai_executive_summary(elements, styles, report_data)
+    elif report_type == 'deepfake':
+        _build_deepfake_executive_summary(elements, styles, report_data)
     else:
         _build_factcheck_executive_summary(elements, styles, report_data)
+
+def _build_deepfake_executive_summary(elements, styles, report_data):
+    """Executive summary for Deepfake detection reports."""
+    df_data = report_data if report_data.get('status') else report_data.get('deepfake_result', {})
+    
+    status = df_data.get('status', 'UNVERIFIED').upper()
+    score = _safe_float(df_data.get('final_score', 0))
+    
+    if status == 'AUTHENTIC':
+        band_label = 'LIKELY AUTHENTIC'
+        band_color = VERDICT_COLORS['TRUE'].hexval()
+        band_desc = 'No strong indicators of synthetic or AI manipulative content were found. The media appears to be authentic.'
+    elif status == 'SUSPICIOUS':
+        band_label = 'SUSPICIOUS / UNCERTAIN'
+        band_color = VERDICT_COLORS['PARTIAL'].hexval()
+        band_desc = 'Partial manipulation signals were found, but not enough to reach a definitive verdict. The media warrants careful scrutiny.'
+    elif status == 'FAKE':
+        band_label = 'DEEPFAKE DETECTED'
+        band_color = VERDICT_COLORS['FALSE'].hexval()
+        band_desc = 'This media shows strong, consistent markers of AI generation or deepfake manipulation.'
+    else:
+        band_label = status
+        band_color = BRAND_TEXT_TERTIARY.hexval()
+        band_desc = 'The analysis could not reliably evaluate this media.'
+
+    verdict_content = [
+        [
+            Paragraph(f'<font color="{BRAND_TEXT_TERTIARY.hexval()}" size="8">DETECTION VERDICT</font>', styles['label']),
+            Paragraph(f'<font color="{BRAND_TEXT_TERTIARY.hexval()}" size="8">AUTHENTICITY SCORE</font>', styles['label']),
+        ],
+        [
+            Paragraph(f'<font color="{band_color}" size="14"><b>{band_label}</b></font>', styles['value']),
+            Paragraph(f'<font color="{band_color}" size="16"><b>{score:.1f} / 100</b></font>', styles['value']),
+        ],
+    ]
+    verdict_table = Table(verdict_content, colWidths=[CONTENT_WIDTH * 0.6, CONTENT_WIDTH * 0.4])
+    verdict_table.setStyle(TableStyle([
+        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+        ('TOPPADDING', (0, 0), (-1, -1), 8),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+        ('LEFTPADDING', (0, 0), (-1, -1), 12),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 12),
+        ('BACKGROUND', (0, 0), (-1, -1), BRAND_BG_SECTION),
+        ('BOX', (0, 0), (-1, -1), 0.5, BRAND_BORDER),
+        ('ROUNDEDCORNERS', [4, 4, 4, 4]),
+    ]))
+    elements.append(verdict_table)
+    elements.append(Spacer(1, 8))
+
+    elements.append(Paragraph(f'<b>Assessment:</b> {band_desc}', styles['executive_body']))
 
 
 def _build_factcheck_executive_summary(elements, styles, report_data):
@@ -841,6 +899,27 @@ def _build_evidence_table(elements, styles, sources):
     elements.append(evidence_table)
 
 
+def _build_deepfake_details(elements, styles, report_data):
+    """Build detailed Deepfake detection results."""
+    df_data = report_data if report_data.get('status') else report_data.get('deepfake_result', {})
+    
+    if not df_data:
+        return
+        
+    elements.append(_section_heading_with_number(styles, 3, 'Deepfake Analysis Breakdown'))
+    elements.append(_section_divider())
+    
+    score = _safe_float(df_data.get('final_score', 0))
+    media_type = df_data.get('media_type', 'UNKNOWN')
+    
+    detail_stats = [
+        ('Authenticity Score', f'{score:.1f} / 100', BRAND_PRIMARY.hexval()),
+        ('Media Format', media_type, BRAND_TEXT_SECONDARY.hexval()),
+        ('Status', df_data.get('status', 'UNVERIFIED'), BRAND_TEXT_SECONDARY.hexval()),
+    ]
+    elements.append(_stat_card_table(styles, detail_stats, col_count=3))
+    elements.append(Spacer(1, 8))
+
 # ─── AI Detection Details ─────────────────────────────────────────────────────
 
 def _build_ai_detection_details(elements, styles, report_data):
@@ -1110,6 +1189,8 @@ def build_pdf_report(report_data: dict) -> BytesIO:
     # ── 4. Main Analysis ──
     if report_type == 'ai_detection':
         _build_ai_detection_details(elements, styles, report_data)
+    elif report_type == 'deepfake':
+        _build_deepfake_details(elements, styles, report_data)
     else:
         # Fact-check: claims table + detailed breakdown
         _build_claims_verdicts(elements, styles, report_data)
