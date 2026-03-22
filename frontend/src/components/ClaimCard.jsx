@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { ChevronDown, ChevronUp, CheckCircle2, XCircle, HelpCircle, Loader2, Scale, Sparkles, ExternalLink, ShieldCheck, ShieldAlert, ShieldQuestion } from 'lucide-react';
+import { ChevronDown, ChevronUp, CheckCircle2, XCircle, HelpCircle, Loader2, Scale, Sparkles, ExternalLink, ShieldCheck, ShieldAlert, ShieldQuestion, Volume2, VolumeX } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { toggleSpeech } from '../utils/tts';
 import './ClaimCard.css';
+import './TTSButton.css';
 
 const ClaimCard = ({ claimData, index = 0 }) => {
     const [expanded, setExpanded] = useState(false);
@@ -16,6 +18,30 @@ const ClaimCard = ({ claimData, index = 0 }) => {
     const verdictInfo = isCompleted ? getVerdictInfo(claimData.verdict) : null;
     const confidence = claimData.confidence ? (claimData.confidence * 100) : 0;
     const confidenceLevel = confidence >= 70 ? 'high' : confidence >= 40 ? 'medium' : 'low';
+    
+    // State to track if this component is speaking which block
+    const [speakingBlock, setSpeakingBlock] = React.useState(null);
+
+    React.useEffect(() => {
+        const handleStateChange = (e) => {
+            const { id, speaking } = e.detail;
+            if (id && id.startsWith(`claim-${index}-`) && speaking) {
+                setSpeakingBlock(id);
+            } else if (!speaking && speakingBlock === id) {
+                setSpeakingBlock(null);
+            } else if (speaking && id && !id.startsWith(`claim-${index}-`)) {
+                setSpeakingBlock(null);
+            }
+        };
+
+        window.addEventListener('tts-state-change', handleStateChange);
+        return () => window.removeEventListener('tts-state-change', handleStateChange);
+    }, [index, speakingBlock]);
+
+    const handleSpeak = (e, blockId, text) => {
+        e.stopPropagation();
+        toggleSpeech(blockId, text);
+    };
 
     return (
         <div className={`claim-card ${isCompleted ? claimData.verdict?.toLowerCase() : 'pending'}`}>
@@ -27,6 +53,13 @@ const ClaimCard = ({ claimData, index = 0 }) => {
                         </span>
                         {claimData.claim}
                     </h4>
+                    <button 
+                        className={`tts-speaker-btn ${speakingBlock === `claim-${index}-main` ? 'active' : ''}`}
+                        onClick={(e) => handleSpeak(e, `claim-${index}-main`, claimData.claim)}
+                        title="Read claim aloud"
+                    >
+                        {speakingBlock === `claim-${index}-main` ? <VolumeX size={14} /> : <Volume2 size={14} />}
+                    </button>
                     <div className="claim-status-badges">
                         <span className="status-badge">{claimData.status}</span>
                         {isCompleted && verdictInfo && (
@@ -78,6 +111,13 @@ const ClaimCard = ({ claimData, index = 0 }) => {
                                     <div className="detail-section-header">
                                         <Scale size={15} className="section-icon" />
                                         <h5>Judge's Reasoning</h5>
+                                        <button 
+                                            className={`tts-speaker-btn ${speakingBlock === `claim-${index}-reasoning` ? 'active' : ''}`}
+                                            onClick={(e) => handleSpeak(e, `claim-${index}-reasoning`, claimData.reasoning)}
+                                            title="Read reasoning aloud"
+                                        >
+                                            {speakingBlock === `claim-${index}-reasoning` ? <VolumeX size={14} /> : <Volume2 size={14} />}
+                                        </button>
                                     </div>
                                     <div className="reasoning-box">
                                         <p>{claimData.reasoning}</p>
@@ -90,6 +130,13 @@ const ClaimCard = ({ claimData, index = 0 }) => {
                                         <div className="detail-section-header">
                                             <Sparkles size={15} className="section-icon" />
                                             <h5>AI Summary</h5>
+                                            <button 
+                                                className={`tts-speaker-btn ${speakingBlock === `claim-${index}-summary` ? 'active' : ''}`}
+                                                onClick={(e) => handleSpeak(e, `claim-${index}-summary`, claimData.summary + (claimData.key_points ? '. Key points: ' + claimData.key_points.join('. ') : ''))}
+                                                title="Read summary aloud"
+                                            >
+                                                {speakingBlock === `claim-${index}-summary` ? <VolumeX size={14} /> : <Volume2 size={14} />}
+                                            </button>
                                         </div>
                                         <div className="summary-box">
                                             <p>{claimData.summary}</p>

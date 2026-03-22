@@ -4,10 +4,12 @@ import { scanTextForAi, generateReport } from '../api/factCheck';
 import {
   Bot, User, Sparkles, Loader2, AlertTriangle, ShieldCheck, ShieldAlert,
   Info, Zap, BarChart2, Eye, RefreshCw, ChevronRight, CheckCircle2,
-  FileText, RotateCcw, Radar, Shield, Download
+  FileText, RotateCcw, Radar, Shield, Download, Volume2, VolumeX
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { toggleSpeech } from '../utils/tts';
 import './AiDetectionPage.css';
+import '../components/TTSButton.css';
 
 /* ── Helpers ──────────────────────────────────────────────── */
 const getBand = (humanScore) => {
@@ -85,6 +87,18 @@ const AiDetectionPage = () => {
   
   // phase: 'input' | 'processing' | 'complete'
   const [phase, setPhase] = useState('input');
+  const [speakingId, setSpeakingId] = useState(null);
+
+  useEffect(() => {
+    const handleStateChange = (e) => {
+      const { id, speaking } = e.detail;
+      if (id && id.startsWith('aid-') && speaking) setSpeakingId(id);
+      else if (!speaking && speakingId === id) setSpeakingId(null);
+      else if (speaking && id && !id.startsWith('aid-')) setSpeakingId(null);
+    };
+    window.addEventListener('tts-state-change', handleStateChange);
+    return () => window.removeEventListener('tts-state-change', handleStateChange);
+  }, [speakingId]);
 
   const { mutate, isPending, data: result, isError, error } = useMutation({
     mutationFn: () => scanTextForAi(text),
@@ -287,6 +301,14 @@ const AiDetectionPage = () => {
                         <p className="aid-result-title" style={{ color: config.accent }}>{config.label}</p>
                         <p className="aid-result-desc">{config.desc}</p>
                       </div>
+                      <button 
+                        className={`tts-speaker-btn ${speakingId === 'aid-result' ? 'active' : ''}`}
+                        onClick={() => toggleSpeech('aid-result', `${config.label}. ${config.desc}`)}
+                        title="Read result aloud"
+                        style={{ marginLeft: '1rem' }}
+                      >
+                        {speakingId === 'aid-result' ? <VolumeX size={18} /> : <Volume2 size={18} />}
+                      </button>
                     </div>
 
                     {/* Gauge + stats */}

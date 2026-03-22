@@ -1,7 +1,9 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bot, User, AlertTriangle, ShieldCheck, ShieldAlert, Info } from 'lucide-react';
+import { Bot, User, AlertTriangle, ShieldCheck, ShieldAlert, Info, Volume2, VolumeX } from 'lucide-react';
+import { toggleSpeech } from '../utils/tts';
 import './AiDetectionBanner.css';
+import './TTSButton.css';
 
 /**
  * AiDetectionBanner
@@ -19,6 +21,23 @@ const AiDetectionBanner = ({ detection }) => {
   const hasAttack =
     detection.attack_detected?.zero_width_space ||
     detection.attack_detected?.homoglyph_attack;
+    
+  const [speaking, setSpeaking] = React.useState(false);
+
+  React.useEffect(() => {
+    const handleStateChange = (e) => {
+      const { id, speaking } = e.detail;
+      if (id === 'ai-detection-banner' && speaking) {
+        setSpeaking(true);
+      } else if (id === 'ai-detection-banner' && !speaking) {
+        setSpeaking(false);
+      } else if (speaking && id !== 'ai-detection-banner') {
+        setSpeaking(false);
+      }
+    };
+    window.addEventListener('tts-state-change', handleStateChange);
+    return () => window.removeEventListener('tts-state-change', handleStateChange);
+  }, []);
 
   // Determine band
   const getBand = (score) => {
@@ -69,6 +88,14 @@ const AiDetectionBanner = ({ detection }) => {
         <div className="adb-title-block">
             <span className="adb-label">{config.label}</span>
         </div>
+          <button 
+            className={`tts-speaker-btn ${speaking ? 'active' : ''}`}
+            onClick={() => toggleSpeech('ai-detection-banner', `${config.label}. ${config.sublabel}`)}
+            title="Read analysis aloud"
+            style={{ marginRight: '1rem' }}
+          >
+            {speaking ? <VolumeX size={16} /> : <Volume2 size={16} />}
+          </button>
           <div className="adb-scores">
             <div className="adb-score-chip human-chip">
               <User size={12} />

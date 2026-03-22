@@ -6,10 +6,12 @@ import AiDetectionBanner from '../components/AiDetectionBanner';
 import {
   AlertCircle, CheckCircle2, Loader2, Zap, Brain, Scale,
   FileText, Link2, ImageIcon, UploadCloud, RotateCcw, Shield,
-  Search, Radar, Download
+  Search, Radar, Download, Mic, MicOff, Volume2, VolumeX
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { toggleSpeech } from '../utils/tts';
 import './FactCheckDashboard.css';
+import '../components/TTSButton.css';
 
 const PIPELINE_STEPS = [
   { key: 'parsing', label: 'Parsing Claims', sublabel: 'Extracting verifiable statements', icon: FileText },
@@ -50,8 +52,26 @@ const FactCheckDashboard = () => {
   const [inputImage, setInputImage] = useState(null);
   const [isExtracting, setIsExtracting] = useState(false);
   const [activeTaskId, setActiveTaskId] = useState(null);
+  const [speakingStatus, setSpeakingStatus] = useState(false);
+
+  React.useEffect(() => {
+    const handleStateChange = (e) => {
+      const { id, speaking } = e.detail;
+      if (id === 'analysis-status-banner' && speaking) {
+        setSpeakingStatus(true);
+      } else if (id === 'analysis-status-banner' && !speaking) {
+        setSpeakingStatus(false);
+      } else if (speaking && id !== 'analysis-status-banner') {
+        setSpeakingStatus(false);
+      }
+    };
+    window.addEventListener('tts-state-change', handleStateChange);
+    return () => window.removeEventListener('tts-state-change', handleStateChange);
+  }, []);
   // phase: 'input' | 'processing' | 'complete'
   const [phase, setPhase] = useState('input');
+  const [isListening, setIsListening] = useState(false);
+  const recognitionRef = React.useRef(null);
 
   const startMutation = useMutation({
     mutationFn: ({ text, sourceType, originalInput }) => startAnalysis(text, sourceType, originalInput),
@@ -119,6 +139,57 @@ const FactCheckDashboard = () => {
         setIsExtracting(false);
       }
     }
+  };
+  
+  const toggleListening = () => {
+    if (isListening) {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+      setIsListening(false);
+      return;
+    }
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert("Browser does not support speech recognition.");
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'en-US';
+    recognition.continuous = true;
+    recognition.interimResults = true;
+
+    recognition.onstart = () => {
+      setIsListening(true);
+    };
+
+    recognition.onresult = (event) => {
+      let finalTranscript = '';
+      for (let i = event.resultIndex; i < event.results.length; ++i) {
+        if (event.results[i].isFinal) {
+          finalTranscript += event.results[i][0].transcript;
+        }
+      }
+
+      if (finalTranscript) {
+        setInputText(prev => (prev ? prev + ' ' : '') + finalTranscript);
+      }
+    };
+
+    recognition.onerror = (event) => {
+      console.error("Speech recognition error:", event.error);
+      setIsListening(false);
+      recognition.stop();
+    };
+
+    recognition.onend = () => {
+      setIsListening(false);
+    };
+
+    recognitionRef.current = recognition;
+    recognition.start();
   };
 
   const handleNewAnalysis = useCallback(() => {
@@ -220,14 +291,25 @@ const FactCheckDashboard = () => {
                 transition={{ duration: 0.2 }}
               >
                 {inputType === 'text' && (
-                  <textarea
-                    className="fc-textarea"
-                    placeholder={"Enter a claim, article excerpt, or statement to verify...\n\nExample: \"The Great Wall of China is visible from space with the naked eye.\""}
-                    value={inputText}
-                    onChange={(e) => setInputText(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    rows={5}
-                  />
+                  <div className="fc-textarea-container">
+                    <textarea
+                      className="fc-textarea"
+                      placeholder={"Enter a claim, article excerpt, or statement to verify...\n\nExample: \"The Great Wall of China is visible from space with the naked eye.\""}
+                      value={inputText}
+                      onChange={(e) => setInputText(e.target.value)}
+                      onKeyDown={handleKeyDown}
+                      rows={5}
+                    />
+                    <button 
+                      type="button"
+                      className={`fc-mic-btn ${isListening ? 'listening' : ''}`}
+                      onClick={toggleListening}
+                      title={isListening ? "Stop listening" : "Voice Input"}
+                    >
+                      {isListening ? <Mic size={18} /> : <Mic size={18} />}
+                      {isListening && <span className="fc-mic-pulse" />}
+                    </button>
+                  </div>
                 )}
 
                 {inputType === 'url' && (
@@ -400,6 +482,14 @@ const FactCheckDashboard = () => {
                   <h3>{isCompleted ? 'Analysis Complete' : 'Analysis Failed'}</h3>
                   <p>{isCompleted ? `${taskData?.claims?.length || 0} claim(s) verified` : 'An error occurred during analysis.'}</p>
                 </div>
+                <button 
+                  className={`tts-speaker-btn ${speakingStatus ? 'active' : ''}`}
+                  onClick={() => toggleSpeech('analysis-status-banner', `${isCompleted ? 'Analysis Complete' : 'Analysis Failed'}. ${isCompleted ? (taskData?.claims?.length || 0) + ' claims verified.' : 'An error occurred during analysis.'}`)}
+                  title="Read status aloud"
+                  style={{ marginRight: '1rem' }}
+                >
+                  {speakingStatus ? <VolumeX size={18} /> : <Volume2 size={18} />}
+                </button>
                 <span className={`badge ${isCompleted ? 'badge-success' : 'badge-danger'}`}>
                   {taskData?.status}
                 </span>

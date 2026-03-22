@@ -5,10 +5,12 @@ import {
   ScanEye, ShieldCheck, ShieldAlert, Info, Loader2,
   UploadCloud, RefreshCw, Film, Image, Music, ChevronRight,
   Zap, AlertTriangle, FileQuestion, Radar, Download, CheckCircle2,
-  AlertCircle
+  AlertCircle, Volume2, VolumeX
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { toggleSpeech } from '../utils/tts';
 import './DeepfakeDetectionPage.css';
+import '../components/TTSButton.css';
 
 /* ── Helpers ──────────────────────────────────────────────────── */
 const getBand = (status) => {
@@ -98,7 +100,19 @@ const DeepfakeDetectionPage = () => {
   const [isDragging, setIsDragging] = useState(false);
   const [phase, setPhase] = useState('input'); // 'input' | 'processing' | 'complete'
   const [pipelineStep, setPipelineStep] = useState(0);
+  const [speakingId, setSpeakingId] = useState(null);
   const inputRef = useRef(null);
+
+  useEffect(() => {
+    const handleStateChange = (e) => {
+      const { id, speaking } = e.detail;
+      if (id && id.startsWith('dfd-') && speaking) setSpeakingId(id);
+      else if (!speaking && speakingId === id) setSpeakingId(null);
+      else if (speaking && id && !id.startsWith('dfd-')) setSpeakingId(null);
+    };
+    window.addEventListener('tts-state-change', handleStateChange);
+    return () => window.removeEventListener('tts-state-change', handleStateChange);
+  }, [speakingId]);
 
   const { mutate, isPending, data: result, reset, error, isError } = useMutation({
     mutationFn: () => scanMediaForDeepfake(file),
@@ -358,6 +372,14 @@ const DeepfakeDetectionPage = () => {
                   <h3>{isCompleted ? 'Scanning Complete' : 'Scanning Failed'}</h3>
                   <p>{isCompleted ? (result.skipped ? 'Detection skipped' : config.label) : 'An error occurred during scanning.'}</p>
                 </div>
+                <button 
+                  className={`tts-speaker-btn ${speakingId === 'dfd-status' ? 'active' : ''}`}
+                  onClick={() => toggleSpeech('dfd-status', `${isCompleted ? 'Scanning Complete' : 'Scanning Failed'}. ${isCompleted ? (result.skipped ? 'Detection skipped. ' + result.skip_reason : config.label) : 'An error occurred during scanning.'}`)}
+                  title="Read status aloud"
+                  style={{ marginRight: '1.5rem' }}
+                >
+                  {speakingId === 'dfd-status' ? <VolumeX size={18} /> : <Volume2 size={18} />}
+                </button>
                 <span className={`badge ${isCompleted ? (result.skipped ? 'badge-warning' : 'badge-success') : 'badge-danger'}`}>
                   {isCompleted ? (result.skipped ? 'SKIPPED' : result.status) : 'FAILED'}
                 </span>
@@ -424,6 +446,14 @@ const DeepfakeDetectionPage = () => {
 
                       <div className="dfd-interpretation">
                         <p>{interpretation}</p>
+                        <button 
+                          className={`tts-speaker-btn ${speakingId === 'dfd-interpretation' ? 'active' : ''}`}
+                          onClick={(e) => { e.stopPropagation(); toggleSpeech('dfd-interpretation', interpretation); }}
+                          title="Read interpretation aloud"
+                          style={{ position: 'absolute', top: '0.5rem', right: '0.5rem' }}
+                        >
+                          {speakingId === 'dfd-interpretation' ? <VolumeX size={16} /> : <Volume2 size={16} />}
+                        </button>
                       </div>
 
                       <div className="dfd-score-breakdown">
