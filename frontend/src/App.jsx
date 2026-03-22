@@ -10,6 +10,7 @@ import DashboardPage from './pages/DashboardPage';
 import FactCheckDashboard from './pages/FactCheckDashboard';
 import AiDetectionPage from './pages/AiDetectionPage';
 import HistoryPage from './pages/HistoryPage';
+import DeepfakeDetectionPage from './pages/DeepfakeDetectionPage';
 import './styles/index.css';
 
 const LoadingScreen = () => (
@@ -52,6 +53,7 @@ const AppRoutes = () => {
               <Route path="/fact-check" element={<FactCheckDashboard />} />
               <Route path="/ai-detection" element={<AiDetectionPage />} />
               <Route path="/history" element={<HistoryPage />} />
+              <Route path="/deepfake-detection" element={<DeepfakeDetectionPage />} />
               <Route path="*" element={<Navigate to="/dashboard" />} />
             </>
           )}

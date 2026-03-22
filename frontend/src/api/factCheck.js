@@ -67,3 +67,12 @@ export const generateReport = async (reportType, data) => {
     link.click();
     link.remove();
 };
+
+export const scanMediaForDeepfake = async (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await api.post('/api/deepfake-detection/scan', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return response.data; // DeepfakeDetectionResult
+};

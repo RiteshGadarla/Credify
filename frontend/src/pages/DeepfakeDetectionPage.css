@@ -1,0 +1,348 @@
+/* DeepfakeDetectionPage.css
+   Extends and reuses all AiDetectionPage.css base styles.
+   Only deepfake-specific overrides live here.
+   ============================================================ */
+
+.dfd-page {
+  padding: 2rem 2.5rem 3rem;
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+/* ── Upload Card ──────────────────────────────────────────────── */
+.dfd-upload-card {
+  background: var(--bg-card);
+  border: 2px dashed var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 2rem 1.5rem;
+  margin-bottom: 1.25rem;
+  cursor: pointer;
+  transition: border-color var(--transition), background var(--transition),
+              box-shadow var(--transition);
+  text-align: center;
+}
+
+.dfd-upload-card:hover,
+.dfd-upload-card.dragging {
+  border-color: #7c3aed;
+  background: rgba(124, 58, 237, 0.04);
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.12);
+}
+
+.dfd-upload-card.has-file {
+  cursor: default;
+  border-style: solid;
+  border-color: var(--border-subtle);
+}
+
+/* ── Drop Area ── */
+.dfd-drop-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 0;
+}
+
+.dfd-upload-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, rgba(124,58,237,0.1), rgba(162,28,175,0.07));
+  border: 1.5px solid rgba(124,58,237,0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #7c3aed;
+  margin-bottom: 0.5rem;
+  transition: transform var(--transition);
+}
+
+.dfd-upload-card:hover .dfd-upload-icon {
+  transform: translateY(-3px);
+}
+
+.dfd-drop-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.dfd-link {
+  color: #7c3aed;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.dfd-drop-sub {
+  font-size: 0.8rem;
+  color: var(--text-tertiary);
+  margin: 0;
+}
+
+/* ── File Preview ── */
+.dfd-file-preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.dfd-img-preview {
+  max-height: 220px;
+  max-width: 100%;
+  border-radius: var(--radius-md);
+  object-fit: contain;
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-sm);
+}
+
+.dfd-file-icon-wrap {
+  width: 72px;
+  height: 72px;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, rgba(124,58,237,0.1), rgba(162,28,175,0.07));
+  border: 1.5px solid rgba(124,58,237,0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #7c3aed;
+}
+
+.dfd-file-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.dfd-file-name {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  max-width: 320px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dfd-file-size {
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+}
+
+/* ── Actions Row ── */
+.dfd-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+/* ── Scanning Steps Card ── */
+.dfd-scanning-card {
+  background: var(--bg-card);
+  border: 1.5px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem 2rem;
+  margin-bottom: 1.5rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.dfd-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.dfd-step {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--text-tertiary);
+  transition: color var(--transition);
+}
+
+.dfd-step.active {
+  color: #7c3aed;
+  font-weight: 600;
+}
+
+.dfd-step.done {
+  color: var(--success);
+}
+
+.dfd-step-dot {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid var(--border-color);
+  flex-shrink: 0;
+}
+
+/* ── Confidence Badge + Meta chips row ── */
+.dfd-confidence-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.35rem;
+}
+
+.dfd-confidence-badge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.18rem 0.55rem;
+  border-radius: var(--radius-full);
+  border: 1.5px solid;
+  line-height: 1.4;
+}
+
+.dfd-meta-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 0.18rem 0.55rem;
+  border-radius: var(--radius-full);
+  background: var(--bg-sub);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* ── Interpretation paragraph ── */
+.dfd-interpretation {
+  background: var(--bg-sub);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 0.85rem 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.dfd-interpretation p {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  line-height: 1.65;
+  margin: 0;
+}
+
+/* ── Score Breakdown ── */
+.dfd-score-breakdown {
+  margin-bottom: 1rem;
+}
+
+.dfd-score-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 0.45rem;
+}
+
+.dfd-score-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-tertiary);
+}
+
+.dfd-score-value {
+  font-size: 1rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.dfd-score-track {
+  position: relative;
+  height: 10px;
+  background: var(--bg-sub);
+  border-radius: var(--radius-full);
+  overflow: visible;
+  margin-bottom: 0.3rem;
+}
+
+.dfd-score-fill {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+}
+
+.dfd-track-marker {
+  position: absolute;
+  top: -2px;
+  bottom: -2px;
+  width: 2px;
+  background: var(--bg-card);
+  border-radius: 2px;
+  transform: translateX(-50%);
+  z-index: 2;
+}
+
+.dfd-track-needle {
+  position: absolute;
+  top: -4px;
+  width: 3px;
+  height: 18px;
+  background: var(--text-primary);
+  border-radius: 3px;
+  transform: translateX(-50%);
+  z-index: 3;
+  box-shadow: 0 0 4px rgba(0,0,0,0.35);
+}
+
+.dfd-score-zones {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-top: 0.25rem;
+}
+
+/* ── Caution Note ── */
+.dfd-caution-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  background: rgba(255, 167, 38, 0.07);
+  border: 1px solid rgba(255, 167, 38, 0.28);
+  border-radius: var(--radius);
+  padding: 0.7rem 0.9rem;
+  font-size: 0.8rem;
+  color: var(--warning);
+  line-height: 1.5;
+  margin-top: 0.25rem;
+}
+
+.dfd-caution-note svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 640px) {
+  .dfd-page {
+    padding: 1.5rem 1rem 2rem;
+  }
+
+  .dfd-actions {
+    flex-direction: column-reverse;
+  }
+
+  .aid-scores-layout {
+    grid-template-columns: 1fr;
+  }
+}
