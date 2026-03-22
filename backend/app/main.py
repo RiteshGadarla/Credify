@@ -10,11 +10,12 @@ import os
 app = FastAPI(title=settings.PROJECT_NAME)
 
 # CORS
-# origins = [
-#     "http://localhost:4173",
-#     "http://localhost:5173",
-#     "http://localhost:3000",
-# ]
+origins = [
+    "http://localhost:4173",
+    "http://localhost:5173",
+    "http://localhost:3000",
+    "https://credify.vercel.app/"
+]
 
 uploads_path = os.path.join(os.path.dirname(__file__), "uploads")
 os.makedirs(uploads_path, exist_ok=True)
@@ -22,7 +23,7 @@ app.mount("/api/uploads", StaticFiles(directory=uploads_path), name="uploads")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
