@@ -59,6 +59,117 @@
   color: var(--text-tertiary);
 }
 
+/* --- Input Tabs --- */
+.fc-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  background: var(--bg-sub);
+  padding: 0.35rem;
+  border-radius: var(--radius-lg);
+  width: fit-content;
+  border: 1px solid var(--border-subtle);
+}
+
+.fc-tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1.15rem;
+  border: none;
+  background: transparent;
+  color: var(--text-tertiary);
+  font-weight: 500;
+  font-size: 0.85rem;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.fc-tab-btn:hover {
+  color: var(--text-primary);
+}
+
+.fc-tab-btn.active {
+  background: var(--bg-card);
+  color: var(--primary);
+  box-shadow: var(--shadow-sm);
+  font-weight: 600;
+}
+
+/* --- URL Input --- */
+.fc-url-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  background: var(--bg-sub);
+  border: 1.5px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  transition: all var(--transition);
+  margin-bottom: 1rem;
+}
+
+.fc-url-wrapper:focus-within {
+  border-color: var(--primary);
+  background: var(--bg-card);
+  box-shadow: 0 0 0 3px var(--primary-glow);
+}
+
+.fc-url-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+}
+
+.fc-url-input::placeholder {
+  color: var(--text-tertiary);
+}
+
+/* --- Image Dropzone --- */
+.fc-image-dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1.5rem;
+  margin-bottom: 1rem;
+  border: 2px dashed var(--border-color);
+  border-radius: var(--radius-md);
+  background: var(--bg-sub);
+  transition: all var(--transition);
+  text-align: center;
+}
+
+.fc-image-dropzone:hover, .fc-image-dropzone.has-file {
+  border-color: var(--primary);
+  background: var(--primary-ghost);
+}
+
+.fc-image-dropzone-icon {
+  color: var(--primary);
+  margin-bottom: 1rem;
+  background: var(--bg-card);
+  padding: 1rem;
+  border-radius: 50%;
+  box-shadow: var(--shadow-xs);
+}
+
+.fc-image-text {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.35rem;
+}
+
+.fc-image-subtext {
+  font-size: 0.85rem;
+  color: var(--text-tertiary);
+}
+
 .fc-input-footer {
   display: flex;
   align-items: center;

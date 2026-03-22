@@ -23,6 +23,7 @@ async def extract_claims(req: ExtractClaimsRequest):
 
 class AnalyzeRequest(BaseModel):
     text: str
+    source_type: str = "text"
 
 @router.post("/analyze")
 async def start_analysis(
@@ -33,8 +34,8 @@ async def start_analysis(
     try:
         user_id = current_user.get("id", "")
         logger.info(f"Starting full analysis for text of length {len(req.text)} (user: {user_id})")
-        task_id = await AgentOrchestrator.create_task(req.text, user_id)
-        background_tasks.add_task(AgentOrchestrator.run_full_analysis, task_id, req.text, user_id)
+        task_id = await AgentOrchestrator.create_task(req.text, req.source_type, user_id)
+        background_tasks.add_task(AgentOrchestrator.run_full_analysis, task_id, req.text, req.source_type, user_id)
         return {"task_id": task_id}
     except Exception as e:
         logger.error(f"Error starting full analysis: {e}")

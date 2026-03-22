@@ -34,13 +34,14 @@ class AgentOrchestrator:
         self.summarizer = SummaryAgent()
 
     @classmethod
-    async def create_task(cls, text: str, user_id: str = "") -> str:
+    async def create_task(cls, text: str, source_type: str = "text", user_id: str = "") -> str:
         logger.info("AgentOrchestrator: Creating new task...")
         db = get_database()
         task_id = str(uuid.uuid4())
         doc = {
             "task_id": task_id,
             "text": text,
+            "source_type": source_type,
             "status": "Initializing...",
             "claims": [],
             "user_id": user_id,
@@ -198,7 +199,7 @@ class AgentOrchestrator:
         await orchestrator._process_single_claim(task_id, claim, user_id)
 
     @classmethod
-    async def run_full_analysis(cls, task_id: str, text: str, user_id: str = ""):
+    async def run_full_analysis(cls, task_id: str, text: str, source_type: str = "text", user_id: str = ""):
         logger.info(f"AgentOrchestrator: Kicking off full analysis for task: {task_id}")
         orchestrator = cls()
         try:
@@ -218,7 +219,7 @@ class AgentOrchestrator:
             # ─────────────────────────────────────────────────────────────────────────
 
             await cls.update_task_status(task_id, "Extracting claims...")
-            claims = await orchestrator.parser.run(text)
+            claims = await orchestrator.parser.run(text, source_type)
             
             # Check for rejected input (not a fact-checking query)
             rejected_claims = [c for c in claims if c.status == "REJECTED"]

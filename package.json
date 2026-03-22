@@ -15,9 +15,17 @@
     
     "backend:windows": "cmd /c \"cd backend && venv\\Scripts\\activate && python run.py --env development\"",
 
-    "backend:prod": "bash -c 'cd backend && source venv/bin/activate && python run.py --env production --workers 4'",
+    "backend:prod": "bash -c 'cd backend && source venv/bin/activate && python run.py --env production'",
 
     "frontend": "cd frontend && npm run dev",
+
+    "frontend:build": "cd frontend && npm run build",
+
+    "frontend:start": "cd frontend && npm run preview",
+
+    "build": "npm run frontend:build",
+
+    "start": "concurrently \"npm run backend:prod\" \"npm run frontend:start\"",
 
     "dev:linux": "concurrently \"npm run backend:linux\" \"npm run frontend\"",
     
