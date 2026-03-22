@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import auth, deps, fact_check, history, ai_detection,process_text
+from app.routers import auth, deps, fact_check, history, ai_detection, process_text, deepfake_detection
 from app.utils.mongo import connect_to_mongo, close_mongo_connection
 from app.core.config import settings
 from app.utils.logger import logger
@@ -37,6 +37,7 @@ app.include_router(fact_check.router, prefix="/api/fact-check", tags=["fact_chec
 app.include_router(history.router, prefix="/api/history", tags=["history"])
 app.include_router(ai_detection.router, prefix="/api/ai-detection", tags=["ai_detection"])
 app.include_router(process_text.router, prefix="/api/process", tags=["process"])
+app.include_router(deepfake_detection.router, prefix="/api/deepfake-detection", tags=["deepfake_detection"])  # ← add this
 
 # Protected route example 
 @app.get("/me")
