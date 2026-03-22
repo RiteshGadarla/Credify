@@ -53,13 +53,7 @@ const ClaimCard = ({ claimData, index = 0 }) => {
                         </span>
                         {claimData.claim}
                     </h4>
-                    <button 
-                        className={`tts-speaker-btn ${speakingBlock === `claim-${index}-main` ? 'active' : ''}`}
-                        onClick={(e) => handleSpeak(e, `claim-${index}-main`, claimData.claim)}
-                        title="Read claim aloud"
-                    >
-                        {speakingBlock === `claim-${index}-main` ? <VolumeX size={14} /> : <Volume2 size={14} />}
-                    </button>
+
                     <div className="claim-status-badges">
                         <span className="status-badge">{claimData.status}</span>
                         {isCompleted && verdictInfo && (
