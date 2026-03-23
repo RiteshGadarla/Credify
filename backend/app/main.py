@@ -14,7 +14,6 @@ origins = [
     "http://localhost:4173",
     "http://localhost:5173",
     "http://localhost:3000",
-    "https://credify.vercel.app/"
 ]
 
 uploads_path = os.path.join(os.path.dirname(__file__), "uploads")

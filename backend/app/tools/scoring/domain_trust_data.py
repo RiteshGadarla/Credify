@@ -24,6 +24,33 @@ TRUSTED_DOMAINS: set[str] = {
     "snopes.com", "factcheck.org", "politifact.com", "fullfact.org",
     # Government / institutional
     "who.int", "cdc.gov", "nih.gov", "europa.eu", "un.org",
+    # India – newspapers (English)
+    "thehindu.com", "indianexpress.com", "hindustantimes.com",
+    "timesofindia.indiatimes.com", "deccanherald.com", "telegraphindia.com",
+
+    # India – business / finance
+    "livemint.com", "business-standard.com", "financialexpress.com",
+    "economictimes.indiatimes.com", "moneycontrol.com",
+
+    # India – digital / investigative
+    "thewire.in", "scroll.in", "theprint.in", "newslaundry.com",
+
+    # India – TV / broadcast news
+    "ndtv.com", "indiatoday.in", "cnnnews18.com", "news18.com",
+    "timesnownews.com", "republicworld.com", "wionews.com",
+
+    # India – fact-checkers
+    "altnews.in", "boomlive.in", "factchecker.in", "thequint.com",
+
+    # India – government / official
+    "pib.gov.in", "mea.gov.in", "mygov.in", "prsindia.org",
+
+    # India – science / research
+    "ias.ac.in", "insaindia.res.in", "csir.res.in",
+
+    "wikipedia.org",
+    "youtube.com",
+    "youtu.be",
 }
 
 # ─── Suspicious / Low-Trust Domains ──────────────────────────────────────────

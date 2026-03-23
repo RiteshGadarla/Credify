@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from typing import List
 from app.agents.base import BaseAgent
 from app.models.fact_check import Claim
@@ -18,7 +18,14 @@ class ClaimParserAgent(BaseAgent):
         logger.info("ClaimParserAgent: Extracting claims from text.")
 
         # Inject current date for temporal context
-        today = datetime.now(timezone.utc).strftime("%A, %B %d, %Y")
+        utc_now = datetime.now(timezone.utc)
+
+        # IST = UTC + 5:30
+        ist_now = utc_now + timedelta(hours=5, minutes=30)
+
+        # Format both
+        utc_today = utc_now.strftime("%A, %B %d, %Y UTC")
+        ist_today = ist_now.strftime("%A, %B %d, %Y IST")
 
         # Limit token usage for url
         if source_type == "url":
@@ -28,10 +35,10 @@ class ClaimParserAgent(BaseAgent):
         if source_type == "image":
             system_instruction = "SYSTEM NOTE: This text is extracted from a image using OCR. There may be typos. Please accommodate.\n"
         elif source_type == "url":
-            system_instruction = "SYSTEM NOTE: This text is extracted from a WebPage. Extract only useful text and be concise in order to get a MAX of 5 most important fact checks.\n"
+            system_instruction = "SYSTEM NOTE: This text is extracted from a WebPage. Extract only useful text and be concise in order to get a MAX of 4 most important fact checks.\n"
 
         prompt = f"""
-        Today's date is: {today}
+        Today's date is: {ist_today} ({utc_today})
         You are a claim extraction engine for a FACT-CHECKING system.
         
         STEP 1 — INPUT VALIDATION:
