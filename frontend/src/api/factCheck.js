@@ -40,6 +40,17 @@ export const getHistory = async () => {
     return response.data; // { metrics, history }
 };
 
+export const deleteHistoryItem = async (itemId) => {
+    const response = await api.delete(`/api/history/${itemId}`);
+    return response.data;
+};
+
+export const deleteAllHistory = async () => {
+    const response = await api.delete('/api/history/');
+    return response.data;
+};
+
+
 export const scanTextForAi = async (text) => {
     const response = await api.post('/api/ai-detection/scan', { text });
     return response.data; // DetectionResult

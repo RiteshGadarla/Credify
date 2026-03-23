@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { getHistory, generateReport } from '../api/factCheck';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { getHistory, generateReport, deleteHistoryItem, deleteAllHistory } from '../api/factCheck';
 import api from '../api/axios';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Sparkles, Clock, X, AlertCircle, Link2, ImageIcon, FileText, Download, ScanEye } from 'lucide-react';
+import { Search, Sparkles, Clock, X, AlertCircle, Link2, ImageIcon, FileText, Download, ScanEye, Trash2 } from 'lucide-react';
 import './HistoryPage.css';
 import ClaimCard from '../components/ClaimCard';
 import AiDetectionBanner from '../components/AiDetectionBanner';
@@ -15,10 +15,32 @@ const HistoryPage = () => {
   });
 
   const [selectedItem, setSelectedItem] = useState(null);
+  const [showDeleteAllConfirm, setShowDeleteAllConfirm] = useState(false);
+  const queryClient = useQueryClient();
+
+  const deleteItemMutation = useMutation({
+    mutationFn: deleteHistoryItem,
+    onSuccess: () => {
+      queryClient.invalidateQueries(['history']);
+    }
+  });
+
+  const deleteAllMutation = useMutation({
+    mutationFn: deleteAllHistory,
+    onSuccess: () => {
+      queryClient.invalidateQueries(['history']);
+      setShowDeleteAllConfirm(false);
+    }
+  });
 
   const historyList = historyData?.history || [];
 
   const handleClose = () => setSelectedItem(null);
+
+  const handleDeleteItem = (e, id) => {
+    e.stopPropagation();
+    deleteItemMutation.mutate(id);
+  };
 
   const getIstDate = (ts) => {
     let dateStr = ts;
@@ -94,10 +116,18 @@ const HistoryPage = () => {
           </div>
           <div className="hp-item-snippet">{inputSnippet || 'No input provided'}</div>
         </div>
-        <div className="hp-item-status-col">
+        <div className="hp-item-status-col" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <span className={`hp-badge hp-badge-${statusClass}`}>
             {resultText}
           </span>
+          <button 
+            className="hp-item-delete-btn" 
+            onClick={(e) => handleDeleteItem(e, item._id)}
+            disabled={deleteItemMutation.isPending}
+            title="Delete item"
+          >
+            <Trash2 size={16} />
+          </button>
         </div>
       </motion.div>
     );
@@ -230,9 +260,20 @@ const HistoryPage = () => {
   return (
     <div className="history-page">
       <div className="hp-content-area">
-        <header className="hp-header">
-          <h1>Verification History</h1>
-          <p>Review your past fact-checking and AI detection analyses.</p>
+        <header className="hp-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            <h1>Verification History</h1>
+            <p>Review your past fact-checking and AI detection analyses.</p>
+          </div>
+          {historyList.length > 0 && (
+            <button 
+              className="btn hp-delete-all-btn" 
+              onClick={() => setShowDeleteAllConfirm(true)}
+            >
+              <Trash2 size={16} />
+              Delete All
+            </button>
+          )}
         </header>
 
         {isLoading ? (
@@ -254,6 +295,44 @@ const HistoryPage = () => {
 
       <AnimatePresence>
         {renderDetails()}
+        
+        {showDeleteAllConfirm && (
+          <motion.div 
+             className="hp-modal-backdrop"
+             initial={{ opacity: 0 }}
+             animate={{ opacity: 1 }}
+             exit={{ opacity: 0 }}
+             onClick={() => setShowDeleteAllConfirm(false)}
+          >
+             <motion.div
+                className="hp-delete-confirm-modal"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                onClick={(e) => e.stopPropagation()}
+                style={{ background: 'var(--bg-card)', padding: '24px', borderRadius: '12px', maxWidth: '400px', width: '100%', textAlign: 'center', boxShadow: '0 10px 25px rgba(0,0,0,0.2)' }}
+             >
+                <AlertCircle size={48} color="var(--danger)" style={{ margin: '0 auto 16px' }} />
+                <h3 style={{ marginBottom: '12px' }}>Delete All History?</h3>
+                <p style={{ color: 'var(--text-secondary)', marginBottom: '24px' }}>This action cannot be undone. Are you sure you want to permanently delete all your verification history?</p>
+                <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+                   <button 
+                      onClick={() => setShowDeleteAllConfirm(false)}
+                      style={{ padding: '8px 16px', background: 'var(--bg-secondary)', color: 'var(--text-primary)', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '500', flex: 1 }}
+                   >
+                      Cancel
+                   </button>
+                   <button 
+                      onClick={() => deleteAllMutation.mutate()}
+                      disabled={deleteAllMutation.isPending}
+                      style={{ padding: '8px 16px', background: 'var(--danger)', color: 'var(--bg)', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '500', flex: 1 }}
+                   >
+                      {deleteAllMutation.isPending ? 'Deleting...' : 'Yes, Delete All'}
+                   </button>
+                </div>
+             </motion.div>
+          </motion.div>
+        )}
       </AnimatePresence>
     </div>
   );

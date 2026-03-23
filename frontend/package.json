@@ -14,11 +14,13 @@
     "@tanstack/react-query": "^5.91.3",
     "axios": "^1.6.0",
     "credify-root": "file:..",
-    "framer-motion": "^10.16.0",
+    "framer-motion": "^10.18.0",
     "lucide-react": "^0.290.0",
+    "ogl": "^1.0.11",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-router-dom": "^6.20.0"
+    "react-router-dom": "^6.30.3",
+    "three": "^0.183.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",

@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { GoogleLogin } from '@react-oauth/google';
 import { Mail, Lock, LogIn, AlertCircle, Loader2, ShieldCheck, ArrowLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
+import Waves from '../components/Waves';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -41,7 +42,8 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="flex-center" style={{ minHeight: '100vh', padding: '2rem', background: 'var(--bg-main)', position: 'relative' }}>
+    <div className="flex-center" style={{ minHeight: '100vh', padding: '2rem', background: 'var(--bg-main)', position: 'relative', overflow: 'hidden' }}>
+      <Waves />
       <Link 
         to="/" 
         className="flex-center hover-scale"
@@ -72,7 +74,7 @@ const LoginPage = () => {
         }}
       >
         <ArrowLeft size={16} />
-        Back to Home
+        Back
       </Link>
 
       <motion.div 
@@ -80,7 +82,7 @@ const LoginPage = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
         className="card" 
-        style={{ maxWidth: 420, width: '100%', padding: '2.5rem', boxShadow: 'var(--shadow-lg)' }}
+        style={{ maxWidth: 420, width: '100%', padding: '2.5rem', boxShadow: 'var(--shadow-lg)', position: 'relative', zIndex: 2 }}
       >
         {/* Brand */}
         <div className="text-center" style={{ marginBottom: '2rem' }}>

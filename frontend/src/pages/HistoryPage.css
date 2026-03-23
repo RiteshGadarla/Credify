@@ -309,3 +309,60 @@
   flex-direction: column;
   gap: 1rem;
 }
+
+/* Delete functionality styles */
+.hp-item-delete-btn {
+  background: transparent;
+  color: var(--text-tertiary);
+  border: none;
+  border-radius: 6px;
+  padding: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.hp-item-delete-btn:hover {
+  background: var(--danger-light);
+  color: var(--danger);
+}
+
+.hp-item-delete-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: transparent;
+  color: var(--text-tertiary);
+}
+
+.hp-delete-all-btn {
+  background: var(--danger-light);
+  border: 1.5px solid transparent;
+  color: var(--danger);
+}
+
+.hp-delete-all-btn:hover {
+  background: var(--danger) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(239, 83, 80, 0.35);
+  transform: translateY(-2px);
+}
+
+.hp-delete-all-btn:active {
+  transform: translateY(0);
+}
+
+.hp-delete-confirm-modal button {
+  transition: all 0.2s;
+}
+
+.hp-delete-confirm-modal button:hover {
+  filter: brightness(0.95);
+}
+
+.hp-delete-confirm-modal button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
