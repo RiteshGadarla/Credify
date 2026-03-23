@@ -452,14 +452,14 @@ const FactCheckDashboard = () => {
                           ) : (
                             <Icon size={20} />
                           )}
+                          {state === 'active' && (
+                            <div className="fc-step-pulse-ring" />
+                          )}
                         </div>
                         <div className="fc-step-info">
                           <div className={`fc-step-label ${state}`}>{step.label}</div>
                           <div className="fc-step-sublabel">{step.sublabel}</div>
                         </div>
-                        {state === 'active' && (
-                          <div className="fc-step-pulse-ring" />
-                        )}
                       </motion.div>
                     );
                   })}

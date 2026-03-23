@@ -259,7 +259,10 @@ const AiDetectionPage = () => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
               >
-                <Radar size={40} className="aid-radar-icon" />
+                <div className="aid-radar-wrap">
+                  <Radar size={40} className="aid-radar-icon" />
+                  <div className="aid-radar-pulse-ring" />
+                </div>
                 <h3>Scanning syntax patterns...</h3>
                 <p>Analyzing perplexity and burstiness against known AI models.</p>
                 <div className="aid-processing-bar-wrap">

@@ -3,7 +3,7 @@
    ============================================================ */
 
 .dfd-command-centre {
-  padding: 2rem 2.5rem 3rem;
+  padding: 4rem 2.5rem 3rem;
   max-width: 1020px;
   margin: 0 auto;
   position: relative;
@@ -472,6 +472,7 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  position: relative;
 }
 
 .dfd-step-icon-wrap.waiting {
@@ -509,7 +510,7 @@
 .dfd-step-pulse-ring {
   position: absolute;
   top: 50%;
-  left: 28px;
+  left: 50%;
   width: 40px;
   height: 40px;
   border-radius: 50%;

@@ -139,13 +139,20 @@
   border: 2px solid var(--border-subtle);
 }
 
-.avatar.fallback {
+.avatar.fallback, .avatar.initial-avatar {
   background: linear-gradient(135deg, var(--primary-ghost), var(--primary-light));
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--primary-dark);
   border: 2px solid var(--primary-light);
+}
+
+.avatar.initial-avatar {
+  color: white;
+  font-weight: 700;
+  font-size: 0.95rem;
+  border: none;
 }
 
 .username {

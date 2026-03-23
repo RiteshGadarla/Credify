@@ -342,14 +342,14 @@ const DeepfakeDetectionPage = () => {
                           ) : (
                             <Icon size={20} />
                           )}
+                          {state === 'active' && (
+                            <div className="dfd-step-pulse-ring" />
+                          )}
                         </div>
                         <div className="dfd-step-info">
                           <div className={`dfd-step-label ${state}`}>{step.label}</div>
                           <div className="dfd-step-sublabel">{step.sublabel}</div>
                         </div>
-                        {state === 'active' && (
-                          <div className="dfd-step-pulse-ring" />
-                        )}
                       </motion.div>
                     );
                   })}

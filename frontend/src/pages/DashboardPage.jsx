@@ -115,7 +115,7 @@ const DashboardPage = () => {
   const historyList = historyData?.history || [];
 
   const hour = new Date().getHours();
-  const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+  const greeting = hour < 12 ? 'Good Morning' : hour < 17 ? 'Good Afternoon' : 'Good Evening';
 
   const getIstDate = (ts) => {
     let dateStr = ts;
@@ -158,7 +158,7 @@ const DashboardPage = () => {
             <StatCard icon={<TrendingUp size={22} />} label="Total Verified" value={m.total} color="#03A9F4" delay={0.05} />
             <StatCard icon={<Shield size={22} />} label="Correct" value={m.correct} color="#66BB6A" delay={0.1} />
             <StatCard icon={<AlertTriangle size={22} />} label="Incorrect" value={m.wrong} color="#EF5350" delay={0.15} />
-            <StatCard icon={<Target size={22} />} label="Accuracy" value={`${m.accuracy}%`} color="#FFA726" delay={0.2} />
+            <StatCard icon={<AlertTriangle size={22} />} label="Partial" value={m.total - m.correct - m.wrong} color="#FFA726" delay={0.2} />
           </>
         )}
       </section>
@@ -273,17 +273,17 @@ const DashboardPage = () => {
               <div className="breakdown-row">
                 <span className="breakdown-dot" style={{ background: 'var(--success)' }}></span>
                 <span>Correct</span>
-                <span className="breakdown-value">{m.correct}</span>
+                <span className="breakdown-value">{m.total > 0 ? ((m.correct / m.total) * 100).toFixed(0) : 0}%</span>
               </div>
               <div className="breakdown-row">
                 <span className="breakdown-dot" style={{ background: 'var(--danger)' }}></span>
                 <span>Incorrect</span>
-                <span className="breakdown-value">{m.wrong}</span>
+                <span className="breakdown-value">{m.total > 0 ? ((m.wrong / m.total) * 100).toFixed(0) : 0}%</span>
               </div>
               <div className="breakdown-row">
                 <span className="breakdown-dot" style={{ background: 'var(--warning)' }}></span>
                 <span>Partial</span>
-                <span className="breakdown-value">{m.partial}</span>
+                <span className="breakdown-value">{m.total > 0 ? (((m.total - m.correct - m.wrong) / m.total) * 100).toFixed(0) : 0}%</span>
               </div>
             </div>
           </motion.div>
