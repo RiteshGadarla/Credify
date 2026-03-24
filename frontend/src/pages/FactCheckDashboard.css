@@ -655,7 +655,14 @@
 
 .fc-completion-banner .badge {
   margin-left: auto;
-  flex-shrink: 0;
+  flex-shrink: 1;
+  max-width: 65%;
+  white-space: normal;
+  word-break: break-word;
+  text-align: left;
+  border-radius: var(--radius-md);
+  line-height: 1.4;
+  padding: 0.5rem 0.8rem;
 }
 
 /* --- Error --- */
@@ -768,5 +775,7 @@
 
   .fc-completion-banner .badge {
     margin-left: 0;
+    max-width: 100%;
+    text-align: center;
   }
 }

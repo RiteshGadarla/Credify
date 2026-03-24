@@ -18,7 +18,6 @@ trafilatura
 newspaper3k
 lxml[html_clean]
 pillow
-python-multipart
 aiofiles
 reportlab
 svglib
