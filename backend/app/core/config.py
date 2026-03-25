@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     GOOGLE_CLIENT_ID: str = os.getenv("GOOGLE_CLIENT_ID", "")
     GOOGLE_CLIENT_SECRET: str = os.getenv("GOOGLE_CLIENT_SECRET", "")
     GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")
+    GROQ_API_KEY: str = os.getenv("GROQ_API_KEY", "")
     FAST_API_PORT: int = int(os.getenv("FAST_API_PORT", 8000))
     SERPER_API_KEY: str = os.getenv("SERPER_API_KEY", "key-insert")
     WINSTON_API_KEY: str = os.getenv("WINSTON_API_KEY", "")

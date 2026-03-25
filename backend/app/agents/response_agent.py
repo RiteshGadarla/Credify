@@ -1,7 +1,7 @@
 from typing import List, Dict, Any, Optional
 from app.agents.base import BaseAgent
 from app.models.fact_check import Evidence, JudgeOutput, ProponentOutput, OpponentOutput
-from app.utils.gemini import generate_gemini_response
+from app.utils.llm import generate_llm_response
 from app.utils.logger import logger
 
 class ResponseAgent(BaseAgent):
@@ -44,7 +44,7 @@ class ResponseAgent(BaseAgent):
             
             Write a concise paragraph explaining this reasoning. Return ONLY the explanation text.
             """
-            reasoning = await generate_gemini_response(prompt, temperature=0.1)
+            reasoning = await generate_llm_response(prompt, temperature=0.1)
             
             return JudgeOutput(
                 verdict=verdict,

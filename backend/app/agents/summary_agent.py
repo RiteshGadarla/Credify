@@ -3,7 +3,7 @@ from typing import List, Dict, Any
 from app.agents.base import BaseAgent
 from app.models.fact_check import Evidence
 from app.models.history import SummaryAgentOutput
-from app.utils.gemini import generate_gemini_response
+from app.utils.llm import generate_llm_response
 from app.utils.logger import logger
 
 class SummaryAgent(BaseAgent):
@@ -45,7 +45,7 @@ class SummaryAgent(BaseAgent):
             "key_points": ["bullet 1", "bullet 2", "bullet 3"]
         }}
         """
-        response_text = await generate_gemini_response(prompt, temperature=0.1)
+        response_text = await generate_llm_response(prompt, temperature=0.1)
         
         try:
             # Strip markdown formatting like ```json ... ```

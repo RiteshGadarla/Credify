@@ -7,8 +7,34 @@ from app.utils.logger import logger
 from fastapi.staticfiles import StaticFiles
 import os
 
-app = FastAPI(title=settings.PROJECT_NAME)
+description = """
+**Credify** is an end-to-end, agentic AI platform designed to automate the process of verifying information, analyzing media for manipulations, and detecting AI-generated content.
 
+### Core Capabilities
+*   **Multi-Agent Verification Pipeline:** Sophisticated orchestrator managing specialized agents for claim parsing, retrieval, scoring, and analysis.
+*   **Media Analysis:** Deepfake and AI-manipulation detection for image-based evidence.
+*   **AI Content Detection:** Identification of synthetic text patterns from models like GPT, Claude, and Llama.
+*   **Professional Reporting:** Generation of detailed, verifiable PDF reports with credibility metrics.
+"""
+
+tags_metadata = [
+    {"name": "auth", "description": "Authentication and User Management (JWT)"},
+    {"name": "fact_check", "description": "Core Agentic Verification Pipeline"},
+    {"name": "ai_detection", "description": "AI-Generated Text Identification"},
+    {"name": "deepfake_detection", "description": "Media Manipulation & Deepfake Analysis"},
+    {"name": "history", "description": "User History & Verification Records"},
+    {"name": "report", "description": "Automated PDF Report Generation"},
+    {"name": "process", "description": "Text Processing Utilities"},
+]
+
+app = FastAPI(
+    title=settings.PROJECT_NAME,
+    description=description,
+    version="1.0.0",
+    openapi_tags=tags_metadata,
+    docs_url="/docs",
+    redoc_url="/redoc"
+)
 # CORS
 origins = [
     "http://localhost:4173",

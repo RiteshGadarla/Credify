@@ -2,7 +2,7 @@ import asyncio
 from typing import List, Dict, Any
 from app.agents.base import BaseAgent
 from app.models.fact_check import Evidence
-from app.utils.gemini import generate_gemini_response
+from app.utils.llm import generate_llm_response
 from app.tools.utils.text_processing import parse_json_from_llm
 from app.utils.logger import logger
 
@@ -51,7 +51,7 @@ class VerificationAgent(BaseAgent):
             "reasoning": "Brief explanation"
         }}
         """
-        raw_res = await generate_gemini_response(prompt, temperature=0.1)
+        raw_res = await generate_llm_response(prompt, temperature=0.1)
         parsed = parse_json_from_llm(raw_res)
 
         return {

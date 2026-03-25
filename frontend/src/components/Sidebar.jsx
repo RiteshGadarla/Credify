@@ -59,8 +59,11 @@ const Sidebar = () => {
 
     const languages = [
         { code: 'en', label: 'English', flag: '🇺🇸' },
-        { code: 'hi', label: 'Hindi', flag: '🇮🇳' },
-        { code: 'te', label: 'Telugu', flag: '🇮🇳' },
+        { code: 'hi', label: 'हिन्दी', flag: '🇮🇳' },
+        { code: 'te', label: 'తెలుగు', flag: '🇮🇳' },
+        { code: 'kn', label: 'ಕನ್ನಡ', flag: '🇮🇳' },
+        { code: 'ta', label: 'தமிழ்', flag: '🇮🇳' },
+        { code: 'ml', label: 'മലയാളം', flag: '🇮🇳' },
     ];
 
     const handleLanguageChange = (langCode) => {
@@ -178,7 +181,7 @@ const Sidebar = () => {
                     >
                         <Languages size={19} />
                         <span>Language</span>
-                        <span className="lang-current-badge">
+                        <span className="lang-current-badge notranslate">
                             {languages.find(l => l.code === selectedLang)?.label || 'English'}
                         </span>
                         <ChevronDown size={14} className={`lang-chevron ${langDropdownOpen ? 'open' : ''}`} />
@@ -192,7 +195,7 @@ const Sidebar = () => {
                                     onClick={() => handleLanguageChange(lang.code)}
                                 >
                                     <span className="lang-flag">{lang.flag}</span>
-                                    <span className="lang-label">{lang.label}</span>
+                                    <span className="lang-label notranslate">{lang.label}</span>
                                     {selectedLang === lang.code && <Check size={14} className="lang-check" />}
                                 </div>
                             ))}

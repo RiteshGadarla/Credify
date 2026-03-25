@@ -23,7 +23,17 @@ def main():
         help="Number of workers (used only in production)"
     )
 
+    parser.add_argument(
+        "--llm",
+        choices=["gemini", "groq"],
+        default="gemini",
+        help="Choose the LLM provider (default: gemini)"
+    )
+
     args = parser.parse_args()
+
+    # Set LLM provider environment variable
+    os.environ["LLM_PROVIDER"] = args.llm
 
     # Get port from .env or default to 8000
     port = int(os.getenv("FAST_API_PORT", 8000))

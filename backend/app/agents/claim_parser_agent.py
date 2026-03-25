@@ -2,7 +2,7 @@ from datetime import datetime, timezone, timedelta
 from typing import List
 from app.agents.base import BaseAgent
 from app.models.fact_check import Claim
-from app.utils.gemini import generate_gemini_response
+from app.utils.llm import generate_llm_response
 from app.tools.utils.text_processing import parse_json_from_llm
 from app.utils.logger import logger
 
@@ -77,7 +77,7 @@ class ClaimParserAgent(BaseAgent):
         {system_instruction}
         Text: {text}
         """
-        raw_res = await generate_gemini_response(prompt, temperature=0.1)
+        raw_res = await generate_llm_response(prompt, temperature=0.1)
         logger.info(f"ClaimParserAgent raw llm output: {raw_res.strip()}")
         parsed = parse_json_from_llm(raw_res)
         claims_data = parsed.get("claims", [])
@@ -105,6 +105,6 @@ class ClaimParserAgent(BaseAgent):
         Output JSON exactly in this format:
         {{ "queries": ["query1", "query2"] }}
         """
-        raw_res = await generate_gemini_response(prompt, temperature=0.2)
+        raw_res = await generate_llm_response(prompt, temperature=0.2)
         parsed = parse_json_from_llm(raw_res)
         return parsed.get("queries", [])
